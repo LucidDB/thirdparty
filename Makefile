@@ -8,7 +8,7 @@ fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
-	RmiJdbc csvjdbc janino OpenJava
+	RmiJdbc csvjdbc janino OpenJava hsqldb
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
@@ -26,7 +26,7 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava
+	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava hsqldb
 
 clean_optional: clean_obsolete
 	-rm -rf jalopy isql jswat macker sqlline autoconf libtool automake
@@ -188,5 +188,11 @@ OpenJava: OpenJava-1.1-jvs.tar.bz2
 	tar xfj $<
 	mv OpenJava-1.1-jvs $@
 	touch $@
+
+hsqldb: hsqldb_1_7_2_4.zip
+	-rm -rf $@
+	unzip $<
+	touch $@
+
 
 # End
