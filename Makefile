@@ -183,10 +183,10 @@ libtool: libtool-1.5.6.tar.gz
 		echo)
 	touch $@
 
-OpenJava: OpenJava_1.1_20030618.tgz
+OpenJava: OpenJava-1.1-jvs.tar.bz2
 	-rm -rf OpenJava
-	tar xfz $<
-	mv OpenJava_1.1 $@
+	tar xfj $<
+	mv OpenJava-1.1-jvs $@
 	touch $@
 
 # End
