@@ -13,7 +13,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
 # Unpack only optional third-party components
-optional: isql jswat jalopy macker sqlline
+optional: isql jswat jalopy macker sqlline autoconf automake libtool
 
 # Remove all third-party components
 clean:  clean_fennel clean_farrago clean_optional
@@ -27,7 +27,7 @@ clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino
 
 clean_optional: clean_obsolete
-	-rm -rf jalopy isql jswat macker sqlline
+	-rm -rf jalopy isql jswat macker sqlline autoconf libtool automake
 
 # Remove components which we used to have but are now obsolete.
 clean_obsolete:
@@ -141,3 +141,41 @@ janino: janino-2.0.5.zip janino-2.0.5-src.zip
 	unzip -n janino-2.0.5-src.zip
 	mv janino-2.0.5 janino
 	touch $@
+
+autoconf: autoconf-2.59.tar.gz
+	-rm -rf autoconf
+	tar xfz $<
+	mv autoconf-2.59 autoconf
+	(cd autoconf && \
+		./configure && \
+		make && \
+		echo && \
+		echo "Now, as root, run 'cd $$(pwd); make install' && \
+		echo)
+	touch $@
+
+automake: automake-1.8.3.tar.gz
+	-rm -rf automake
+	tar xfz $<
+	mv automake-1.8.3 automake
+	(cd automake && \
+		./configure && \
+		make && \
+		echo && \
+		echo "Now, as root, run 'cd $$(pwd); make install' && \
+		echo)
+	touch $@
+
+libtool: libtool-1.5.6.tar.gz
+	-rm -rf libtool
+	tar xfz $<
+	mv libtool-1.5.6 libtool
+	(cd libtool && \
+		./configure && \
+		make && \
+		echo && \
+		echo "Now, as root, run 'cd $$(pwd); make install' && \
+		echo)
+	touch $@
+
+# End
