@@ -75,15 +75,11 @@ jalopy: jalopy-ant-0.6.1.zip
 	unzip $< -d jalopy
 	touch $@
 
-isql: java-install-isql-2.1.5a.jar
-	-rm -rf isqltmp
-	mkdir isqltmp
-	-cd isqltmp && jar xf ../java-install-isql-2.1.5a.jar 2> /dev/null
+# TODO jvs 25-March-2004:  get rid of this in a few months
+# It's here to clean up leftovers from the old way of unpacking
+isql: iSQLViewer
 	-rm -rf isql
 	mkdir isql
-	mv isqltmp/Users/mkobold/lib/*.jar isql
-	mv isqltmp/Users/mkobold/iSQL-Viewer-2.1.5.jar isql/isql-core.jar
-	-rm -rf isqltmp
 
 sqlline: sqlline-src-0_7_8.jar
 	-rm -rf sqlline
