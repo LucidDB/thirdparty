@@ -106,10 +106,10 @@ sqlline: sqlline-src-1_0_0.jar
 	mv sqlline-1_0_0 sqlline
 	touch $@
 
-jswat: jswat-2.18.tar.gz
-	-rm -rf jswat-2.18 jswat
-	tar xfz $<
-	mv jswat-2.18 jswat
+jswat: jswat-2.29.zip
+	-rm -rf jswat-2.29 jswat
+	unzip $<
+	mv jswat-2.29 jswat
 	touch $@
 
 macker: macker-0.4.1.tar.gz
