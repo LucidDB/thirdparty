@@ -7,7 +7,8 @@ all:  fennel farrago optional
 fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
-farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs dynamicjava RmiJdbc
+farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs dynamicjava \
+	RmiJdbc csvjdbc
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
@@ -23,7 +24,7 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs dynamicjava RmiJdbc
+	-rm -rf ant javacc junit mdrlibs dynamicjava RmiJdbc csvjdbc
 
 clean_optional:
 	-rm -rf jalopy isql jswat macker sqlline
@@ -123,4 +124,10 @@ dynamicjava: DynamicJava-1.1.5.zip DynamicJava-1.1.5-src.zip
 RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	-rm -rf RmiJdbc
 	tar xfz $<
+	touch $@
+
+csvjdbc: csvjdbc-r0-9.zip
+	-rm -rf csvjdbc
+	unzip $<
+	mv csvjdbc-r0-9 csvjdbc
 	touch $@
