@@ -147,11 +147,10 @@ csvjdbc: csvjdbc-r0-9.zip
 	mv csvjdbc-r0-9 csvjdbc
 	touch $@
 
-janino: janino-2.0.15.zip janino-2.0.15-src.zip
+janino: janino-2.3.0.zip
 	-rm -rf janino
-	unzip janino-2.0.15.zip
-	unzip -n janino-2.0.15-src.zip
-	mv janino-2.0.15 janino
+	unzip $<
+	mv janino-2.3.0 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
