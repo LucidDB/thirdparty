@@ -1,19 +1,25 @@
 # $Id$
 
 # Unpack all third-party components
-all:  fennel farrago optional autotools
+nothing:  
+	@echo Please specify a target from 
+	@echo { all, fennel, farrago, optional, autotools, clean }
+
+# Unpack everything except autotools
+all:
+	make fennel farrago optional
 
 # Unpack only third-party components needed to build Fennel
 fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
-	RmiJdbc csvjdbc janino OpenJava hsqldb
+	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline 
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
 # Unpack only optional third-party components
-optional: isql jswat jalopy macker sqlline 
+optional: isql jswat jalopy 
 
 autotools: autoconf automake libtool
 
@@ -26,10 +32,11 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava hsqldb
+	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
+	hsqldb macker sqlline 
 
-clean_optional: clean_obsolete
-	-rm -rf jalopy isql jswat macker sqlline autoconf libtool automake
+clean_optional: clean_obsolete clean_autotools
+	-rm -rf jalopy isql jswat
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -42,10 +49,10 @@ clean_obsolete:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost_1_31_0_with_regex_patch.tar.bz2
-	-rm -rf boost_1_31_0 boost
+boost:  boost_1_32_0.tar.bz2
+	-rm -rf boost_1_32_0 boost
 	bzip2 -d -k -c $< | tar -x
-	mv boost_1_31_0 boost
+	mv boost_1_32_0 boost
 	touch $@
 
 icu:	icu-2.8.patch.tgz
@@ -59,10 +66,10 @@ stlport:  STLport-4.6.2.tar.gz
 	mv STLport-4.6.2 stlport
 	touch $@
 
-ant: apache-ant-1.6.0-bin.tar.bz2
+ant: apache-ant-1.6.2-bin.tar.bz2
 	-rm -rf apache-ant-1.5.4 ant
 	bzip2 -d -k -c $< | tar -x
-	mv apache-ant-1.6.0 ant
+	mv apache-ant-1.6.2 ant
 	touch $@
 
 javacc: javacc-3.2.tar.gz
@@ -103,10 +110,10 @@ sqlline: sqlline-src-1_0_0.jar
 	mv sqlline-1_0_0 sqlline
 	touch $@
 
-jswat: jswat-2.18.tar.gz
-	-rm -rf jswat-2.18 jswat
-	tar xfz $<
-	mv jswat-2.18 jswat
+jswat: jswat-2.29.zip
+	-rm -rf jswat-2.29 jswat
+	unzip $<
+	mv jswat-2.29 jswat
 	touch $@
 
 macker: macker-0.4.1.tar.gz
@@ -140,11 +147,11 @@ csvjdbc: csvjdbc-r0-9.zip
 	mv csvjdbc-r0-9 csvjdbc
 	touch $@
 
-janino: janino-2.0.5.zip janino-2.0.5-src.zip
+janino: janino-2.0.15.zip janino-2.0.15-src.zip
 	-rm -rf janino
-	unzip janino-2.0.5.zip
-	unzip -n janino-2.0.5-src.zip
-	mv janino-2.0.5 janino
+	unzip janino-2.0.15.zip
+	unzip -n janino-2.0.15-src.zip
+	mv janino-2.0.15 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
