@@ -3,7 +3,11 @@
 # Unpack all third-party components
 nothing:  
 	@echo Please specify a target from 
-	@echo { fennel, farrago, optional, autotools, clean }
+	@echo { all, fennel, farrago, optional, autotools, clean }
+
+# Unpack everything except autotools
+all:
+	make fennel farrago optional
 
 # Unpack only third-party components needed to build Fennel
 fennel: boost stlport icu
