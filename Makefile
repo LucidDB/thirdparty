@@ -19,7 +19,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
 # Unpack only optional third-party components
-optional: isql jswat jalopy jgrapht jgraph jgraphaddons
+optional: jswat jalopy jgrapht jgraph jgraphaddons
 
 autotools: autoconf automake libtool
 
