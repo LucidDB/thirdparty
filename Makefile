@@ -10,12 +10,12 @@ all:
 	make fennel farrago optional
 
 # Unpack only third-party components needed to build Fennel
-fennel: boost stlport icu
+fennel: boost stlport icu resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline \
-	jgrapht jgraph jgraphaddons
+	jgrapht jgraph jgraphaddons resgen
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
@@ -34,7 +34,7 @@ clean_fennel:
 # Remove only third-party components needed by Farrago
 clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
-	hsqldb macker sqlline jgrapht jgraph jgraphaddons
+	hsqldb macker sqlline jgrapht jgraph jgraphaddons resgen
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy isql jswat
@@ -204,5 +204,9 @@ hsqldb: hsqldb_1_7_2_4.zip
 	unzip $<
 	touch $@
 
+resgen: eigenbase-resgen.tar.bz2
+	-rm -rf $@
+	tar xfj $<
+	touch $@
 
 # End
