@@ -1,22 +1,24 @@
-# $Id:$
+# $Id$
 
 # Unpack all third-party components
-all:  fennel farrago optional
+all:  fennel farrago optional autotools
 
 # Unpack only third-party components needed to build Fennel
 fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
-	RmiJdbc csvjdbc janino
+	RmiJdbc csvjdbc janino OpenJava
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
 # Unpack only optional third-party components
-optional: isql jswat jalopy macker sqlline autoconf automake libtool
+optional: isql jswat jalopy macker sqlline 
+
+autotools: autoconf automake libtool
 
 # Remove all third-party components
-clean:  clean_fennel clean_farrago clean_optional
+clean:  clean_fennel clean_farrago clean_optional clean_autotools
 
 # Remove only third-party components needed by Fennel
 clean_fennel:
@@ -24,10 +26,13 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino
+	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava
 
 clean_optional: clean_obsolete
 	-rm -rf jalopy isql jswat macker sqlline autoconf libtool automake
+
+clean_autotools:
+	-rm -rf autoconf automake libtool
 
 # Remove components which we used to have but are now obsolete.
 clean_obsolete:
@@ -176,6 +181,12 @@ libtool: libtool-1.5.6.tar.gz
 		echo && \
 		echo "Now, as root, run 'cd $$(pwd)'; make install" && \
 		echo)
+	touch $@
+
+OpenJava: OpenJava_1.1_20030618.tgz
+	-rm -rf OpenJava
+	tar xfz $<
+	mv OpenJava_1.1 $@
 	touch $@
 
 # End
