@@ -150,7 +150,7 @@ autoconf: autoconf-2.59.tar.gz
 		./configure && \
 		make && \
 		echo && \
-		echo "Now, as root, run 'cd $$(pwd); make install' && \
+		echo "Now, as root, run 'cd $$(pwd)'; make install" && \
 		echo)
 	touch $@
 
@@ -162,7 +162,7 @@ automake: automake-1.8.3.tar.gz
 		./configure && \
 		make && \
 		echo && \
-		echo "Now, as root, run 'cd $$(pwd); make install' && \
+		echo "Now, as root, run 'cd $$(pwd)'; make install" && \
 		echo)
 	touch $@
 
@@ -174,7 +174,7 @@ libtool: libtool-1.5.6.tar.gz
 		./configure && \
 		make && \
 		echo && \
-		echo "Now, as root, run 'cd $$(pwd); make install' && \
+		echo "Now, as root, run 'cd $$(pwd)'; make install" && \
 		echo)
 	touch $@
 
