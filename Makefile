@@ -7,7 +7,7 @@ all:  fennel farrago optional
 fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
-farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs dynamicjava \
+farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
@@ -24,10 +24,14 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs dynamicjava RmiJdbc csvjdbc janino
+	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino
 
-clean_optional:
+clean_optional: clean_obsolete
 	-rm -rf jalopy isql jswat macker sqlline
+
+# Remove components which we used to have but are now obsolete.
+clean_obsolete:
+	-rm -rf dynamicjava
 
 # Rules for unpacking specific components follow.  Note that as part
 # of unpacking, we hide the version, so other parts of the build can
@@ -87,11 +91,11 @@ isql: iSQLViewer
 	-rm -rf isql
 	mkdir isql
 
-sqlline: sqlline-src-0_7_8.jar
+sqlline: sqlline-src-1_0_0.jar
 	-rm -rf sqlline
-	-rm -rf sqlline-0_7_8
+	-rm -rf sqlline-1_0_0
 	jar xf $<
-	mv sqlline-0_7_8 sqlline
+	mv sqlline-1_0_0 sqlline
 	touch $@
 
 jswat: jswat-2.18.tar.gz
@@ -131,7 +135,9 @@ csvjdbc: csvjdbc-r0-9.zip
 	mv csvjdbc-r0-9 csvjdbc
 	touch $@
 
-janino: janino-2.0.3-jvs.tar.gz
+janino: janino-2.0.5.zip janino-2.0.5-src.zip
 	-rm -rf janino
-	tar xfz $<
+	unzip janino-2.0.5.zip
+	unzip -n janino-2.0.5-src.zip
+	mv janino-2.0.5 janino
 	touch $@
