@@ -1,4 +1,4 @@
-# $Id$
+# $Id:$
 
 # Unpack all third-party components
 all:  fennel farrago optional
@@ -8,7 +8,7 @@ fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs dynamicjava \
-	RmiJdbc csvjdbc
+	RmiJdbc csvjdbc janino
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
@@ -24,7 +24,7 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs dynamicjava RmiJdbc csvjdbc
+	-rm -rf ant javacc junit mdrlibs dynamicjava RmiJdbc csvjdbc janino
 
 clean_optional:
 	-rm -rf jalopy isql jswat macker sqlline
@@ -33,22 +33,21 @@ clean_optional:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost-1.30.2.tar.bz2
-	-rm -rf boost-1.30.2 boost
+boost:  boost_1_31_0_with_regex_patch.tar.bz2
+	-rm -rf boost_1_31_0 boost
 	bzip2 -d -k -c $< | tar -x
-	mv boost-1.30.2 boost
+	mv boost_1_31_0 boost
 	touch $@
-
 
 icu:	icu-2.8.patch.tgz
 	-rm -rf icu
 	tar xfz $<
 	touch $@
 
-stlport:  STLport-4.6.1.tar.gz
-	-rm -rf STLport-4.6.1 stlport
+stlport:  STLport-4.6.2.tar.gz
+	-rm -rf STLport-4.6.2 stlport
 	tar xfz $<
-	mv STLport-4.6.1 stlport
+	mv STLport-4.6.2 stlport
 	touch $@
 
 ant: apache-ant-1.6.0-bin.tar.bz2
@@ -130,4 +129,9 @@ csvjdbc: csvjdbc-r0-9.zip
 	-rm -rf csvjdbc
 	unzip $<
 	mv csvjdbc-r0-9 csvjdbc
+	touch $@
+
+janino: janino-2.0.3-jvs.tar.gz
+	-rm -rf janino
+	tar xfz $<
 	touch $@
