@@ -1,4 +1,4 @@
-# $Id:$
+# $Id$
 
 # Unpack all third-party components
 all:  fennel farrago optional
@@ -19,11 +19,11 @@ clean:  clean_fennel clean_farrago clean_optional
 
 # Remove only third-party components needed by Fennel
 clean_fennel:
-	-rm -rf boost stlport
+	-rm -rf boost stlport icu
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs dynamicjava rmijdbc
+	-rm -rf ant javacc junit mdrlibs dynamicjava RmiJdbc
 
 clean_optional:
 	-rm -rf jalopy isql jswat macker sqlline
@@ -38,7 +38,8 @@ boost:  boost-1.30.2.tar.bz2
 	mv boost-1.30.2 boost
 	touch $@
 
-icu:  icu-2.8.patch.tgz
+
+icu:	icu-2.8.patch.tgz
 	-rm -rf icu
 	tar xfz $<
 	touch $@
@@ -105,9 +106,11 @@ macker: macker-0.4.1.tar.gz
 	mv macker-0.4.1 macker
 	touch $@
 
-mdrlibs: mdrlibs.tar.gz
+mdrlibs: mdrextras.tar.gz mdr-standalone.zip uml2mof.zip
 	-rm -rf mdrlibs
-	tar xfz $<
+	tar xfz mdrextras.tar.gz
+	unzip mdr-standalone.zip -d mdrlibs
+	unzip -n uml2mof.zip -d mdrlibs
 	touch $@
 
 dynamicjava: DynamicJava-1.1.5.zip DynamicJava-1.1.5-src.zip
