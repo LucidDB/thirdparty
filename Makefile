@@ -4,7 +4,7 @@
 all:  fennel farrago optional
 
 # Unpack only third-party components needed to build Fennel
-fennel: boost stlport
+fennel: boost stlport icu
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs dynamicjava RmiJdbc
@@ -36,6 +36,11 @@ boost:  boost-1.30.2.tar.bz2
 	-rm -rf boost-1.30.2 boost
 	bzip2 -d -k -c $< | tar -x
 	mv boost-1.30.2 boost
+	touch $@
+
+icu:  icu-2.8.patch.tgz
+	-rm -rf icu
+	tar xfz $<
 	touch $@
 
 stlport:  STLport-4.6.1.tar.gz
