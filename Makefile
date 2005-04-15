@@ -204,9 +204,9 @@ hsqldb: hsqldb_1_7_2_4.zip
 	unzip $<
 	touch $@
 
-resgen: eigenbase-resgen.tar.bz2
+resgen: eigenbase-resgen.zip
 	-rm -rf $@
-	tar xfj $<
+	unzip $<
 	touch $@
 
 # End
