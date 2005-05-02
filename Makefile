@@ -15,7 +15,7 @@ fennel: boost stlport icu resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline \
-	jgrapht jgraph jgraphaddons resgen
+	jgrapht jgraphaddons resgen
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
@@ -34,7 +34,7 @@ clean_fennel:
 # Remove only third-party components needed by Farrago
 clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
-	hsqldb macker sqlline jgrapht jgraph jgraphaddons resgen
+	hsqldb macker sqlline jgrapht jgraphaddons resgen
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy isql jswat
@@ -43,8 +43,9 @@ clean_autotools:
 	-rm -rf autoconf automake libtool
 
 # Remove components which we used to have but are now obsolete.
+# NOTE jvs 20-Apr-2005:  now we use the jgraph.jar from JGraphT
 clean_obsolete:
-	-rm -rf dynamicjava
+	-rm -rf dynamicjava jgraph
 
 # Rules for unpacking specific components follow.  Note that as part
 # of unpacking, we hide the version, so other parts of the build can
@@ -98,16 +99,10 @@ jalopy: jalopy-ant-0.6.1.zip
 	unzip $< -d $@
 	touch $@
 
-jgrapht: jgrapht-0.5.3.tar.gz
-	-rm -rf jgrapht-0.5.3 $@
+jgrapht: jgrapht-0.5.3-jvs.tar.gz
+	-rm -rf jgrapht-0.5.3-local $@
 	tar xfz $<
-	mv jgrapht-0.5.3 jgrapht
-	touch $@
-
-jgraph: jgraph-5.4-java1.4-open.jar
-	-rm -rf $@
-	mkdir $@
-	cd $@ && jar xf ../$<
+	mv jgrapht-0.5.3-local jgrapht
 	touch $@
 
 jgraphaddons: jgraphaddons-1.0.5-src.zip
