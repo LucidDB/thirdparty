@@ -10,7 +10,7 @@ all:
 	make fennel farrago optional
 
 # Unpack only third-party components needed to build Fennel
-fennel: boost stlport icu resgen
+fennel: boost stlport resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
@@ -29,7 +29,7 @@ clean:  clean_fennel clean_farrago clean_optional clean_autotools
 
 # Remove only third-party components needed by Fennel
 clean_fennel:
-	-rm -rf boost stlport icu
+	-rm -rf boost stlport
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
@@ -45,7 +45,7 @@ clean_autotools:
 # Remove components which we used to have but are now obsolete.
 # NOTE jvs 20-Apr-2005:  now we use the jgraph.jar from JGraphT
 clean_obsolete:
-	-rm -rf dynamicjava jgraph
+	-rm -rf dynamicjava jgraph icu
 
 # Rules for unpacking specific components follow.  Note that as part
 # of unpacking, we hide the version, so other parts of the build can
