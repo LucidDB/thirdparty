@@ -20,7 +20,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
 
 # Unpack only optional third-party components
-optional: jswat jalopy
+optional: jswat jalopy retroweaver
 
 autotools: autoconf automake libtool
 
@@ -37,7 +37,7 @@ clean_farrago:
 	hsqldb macker sqlline jgrapht jgraphaddons resgen
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy isql jswat
+	-rm -rf jalopy isql jswat retroweaver
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -202,6 +202,11 @@ hsqldb: hsqldb_1_7_2_4.zip
 resgen: eigenbase-resgen.zip
 	-rm -rf $@
 	unzip $<
+	touch $@
+
+retroweaver: retroweaver-all.jar
+	-rm -rf $@
+	jar xf $<
 	touch $@
 
 # End
