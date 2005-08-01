@@ -99,10 +99,10 @@ jalopy: jalopy-ant-0.6.1.zip
 	unzip $< -d $@
 	touch $@
 
-jgrapht: jgrapht-0.5.3-jvs.tar.gz
-	-rm -rf jgrapht-0.5.3-local $@
+jgrapht: jgrapht-0.7.0alpha.tar.gz
+	-rm -rf jgrapht-0.7.0alpha-local $@
 	tar xfz $<
-	mv jgrapht-0.5.3-local jgrapht
+	mv jgrapht-0.7.0alpha-local jgrapht
 	touch $@
 
 jgraphaddons: jgraphaddons-1.0.5-src.zip
