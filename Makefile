@@ -140,10 +140,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-csvjdbc: csvjdbc-r0-9.zip
+csvjdbc: csvjdbc-r0-10.zip
 	-rm -rf $@
 	unzip $<
-	mv csvjdbc-r0-9 csvjdbc
+	mv csvjdbc-r0-10 csvjdbc
 	touch $@
 
 janino: janino-2.3.0.zip
