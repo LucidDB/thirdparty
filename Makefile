@@ -51,10 +51,10 @@ clean_obsolete:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost_1_32_0.tar.bz2
-	-rm -rf boost_1_32_0 $@
+boost:  boost_1_33_0.tar.bz2
+	-rm -rf boost_1_33_0 $@
 	bzip2 -d -k -c $< | tar -x
-	mv boost_1_32_0 boost
+	mv boost_1_33_0 boost
 	touch $@
 
 icu:	icu-2.8.patch.tgz
