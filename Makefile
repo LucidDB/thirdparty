@@ -17,7 +17,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline \
 	jgrapht jgraphaddons resgen retroweaver
 
-ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar
+ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar
 
 # Unpack only optional third-party components
 optional: jswat jalopy
@@ -51,10 +51,10 @@ clean_obsolete:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost_1_32_0.tar.bz2
-	-rm -rf boost_1_32_0 $@
+boost:  boost_1_33_0.tar.bz2
+	-rm -rf boost_1_33_0 $@
 	bzip2 -d -k -c $< | tar -x
-	mv boost_1_32_0 boost
+	mv boost_1_33_0 boost
 	touch $@
 
 icu:	icu-2.8.patch.tgz
@@ -92,6 +92,10 @@ ant/lib/junit.jar: ant junit
 
 ant/lib/jakarta-oro-2.0.7.jar: ant
 	cp jakarta-oro-2.0.7.jar ant/lib
+	touch $@
+
+ant/lib/ant-contrib.jar: ant
+	cp ant-contrib-1.0b2.jar ant/lib/ant-contrib.jar
 	touch $@
 
 jalopy: jalopy-ant-0.6.1.zip
