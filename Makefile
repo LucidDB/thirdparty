@@ -200,7 +200,7 @@ OpenJava: OpenJava-1.1-jvs.tar.bz2
 	mv OpenJava-1.1-jvs $@
 	touch $@
 
-hsqldb: hsqldb_1_7_2_4.zip
+hsqldb: hsqldb_1_8_0_2.zip
 	-rm -rf $@
 	unzip $<
 	touch $@
