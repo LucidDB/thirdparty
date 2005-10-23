@@ -39,7 +39,7 @@ clean_farrago:
 	log4j jdbcappender
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy isql jswat
+	-rm -rf jalopy jswat
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -47,7 +47,7 @@ clean_autotools:
 # Remove components which we used to have but are now obsolete.
 # NOTE jvs 20-Apr-2005:  now we use the jgraph.jar from JGraphT
 clean_obsolete:
-	-rm -rf dynamicjava jgraph icu
+	-rm -rf dynamicjava jgraph icu isql
 
 # Rules for unpacking specific components follow.  Note that as part
 # of unpacking, we hide the version, so other parts of the build can
