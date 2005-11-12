@@ -221,10 +221,10 @@ jdbcappender: jdbcappender.zip
 	unzip $< -d $@
 	touch $@
 
-log4j: logging-log4j-1.3alpha-6.tar.gz
-	-rm -rf $@ logging-log4j-1.3alpha-6
-	tar -zxvf $< 
-	mv logging-log4j-1.3alpha-6 $@
+log4j: logging-log4j-1.3alpha-7.tar.gz
+	-rm -rf $@ logging-log4j-1.3alpha-7
+	tar zxf $< 
+	mv logging-log4j-1.3alpha-7 $@
 	touch $@
 
 # End
