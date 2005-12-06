@@ -16,7 +16,7 @@ fennel: boost stlport resgen
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline \
 	jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender
+	log4j jdbcappender jtds
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar
 
@@ -36,7 +36,7 @@ clean_fennel:
 clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender
+	log4j jdbcappender jtds
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy jswat
@@ -225,6 +225,11 @@ log4j: logging-log4j-1.3alpha-7.tar.gz
 	-rm -rf $@ logging-log4j-1.3alpha-7
 	tar zxf $< 
 	mv logging-log4j-1.3alpha-7 $@
+	touch $@
+
+jtds: jtds-1.2-dist.zip 
+	-rm -rf $@
+	unzip $< -d $@
 	touch $@
 
 # End
