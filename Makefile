@@ -70,10 +70,10 @@ stlport:  STLport-4.6.2.tar.gz
 	mv STLport-4.6.2 stlport
 	touch $@
 
-ant: apache-ant-1.6.2-bin.tar.bz2
-	-rm -rf apache-ant-1.5.4 $@
+ant: apache-ant-1.6.5-bin.tar.bz2
+	-rm -rf apache-ant-1.6.5 $@
 	bzip2 -d -k -c $< | tar -x
-	mv apache-ant-1.6.2 ant
+	mv apache-ant-1.6.5 ant
 	touch $@
 
 javacc: javacc-3.2.tar.gz
