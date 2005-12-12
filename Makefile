@@ -16,7 +16,7 @@ fennel: boost stlport resgen
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline \
 	jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender
+	log4j jdbcappender jtds
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar
 
@@ -36,7 +36,7 @@ clean_fennel:
 clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender
+	log4j jdbcappender jtds
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy jswat
@@ -70,10 +70,10 @@ stlport:  STLport-4.6.2.tar.gz
 	mv STLport-4.6.2 stlport
 	touch $@
 
-ant: apache-ant-1.6.2-bin.tar.bz2
-	-rm -rf apache-ant-1.5.4 $@
+ant: apache-ant-1.6.5-bin.tar.bz2
+	-rm -rf apache-ant-1.6.5 $@
 	bzip2 -d -k -c $< | tar -x
-	mv apache-ant-1.6.2 ant
+	mv apache-ant-1.6.5 ant
 	touch $@
 
 javacc: javacc-3.2.tar.gz
@@ -146,10 +146,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-csvjdbc: csvjdbc-r0-10.zip
+csvjdbc: csvjdbc-r0-10-schoi.zip
 	-rm -rf $@
 	unzip $<
-	mv csvjdbc-r0-10 csvjdbc
+	mv csvjdbc-r0-10-schoi csvjdbc
 	touch $@
 
 janino: janino-2.3.9.zip
@@ -225,6 +225,11 @@ log4j: logging-log4j-1.3alpha-7.tar.gz
 	-rm -rf $@ logging-log4j-1.3alpha-7
 	tar zxf $< 
 	mv logging-log4j-1.3alpha-7 $@
+	touch $@
+
+jtds: jtds-1.2-dist.zip 
+	-rm -rf $@
+	unzip $< -d $@
 	touch $@
 
 # End
