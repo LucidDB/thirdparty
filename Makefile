@@ -76,10 +76,10 @@ ant: apache-ant-1.6.5-bin.tar.bz2
 	mv apache-ant-1.6.5 ant
 	touch $@
 
-javacc: javacc-3.2.tar.gz
-	-rm -rf javacc-3.2 $@
+javacc: javacc-4.0.tar.gz
+	-rm -rf javacc-4.0 $@
 	tar xfz $<
-	mv javacc-3.2 javacc
+	mv javacc-4.0 javacc
 	touch $@
 
 junit: junit3.8.1.zip
