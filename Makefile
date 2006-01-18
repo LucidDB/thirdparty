@@ -21,7 +21,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar
 
 # Unpack only optional third-party components
-optional: jswat jalopy
+optional: jswat jalopy emma
 
 autotools: autoconf automake libtool
 
@@ -39,7 +39,7 @@ clean_farrago:
 	log4j jdbcappender jtds
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy jswat
+	-rm -rf jalopy jswat emma
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -231,5 +231,13 @@ jtds: jtds-1.2-dist.zip
 	-rm -rf $@
 	unzip $< -d $@
 	touch $@
+
+emma: emma-2.0.5312.zip
+	-rm -rf $@ emma-2.0.5312
+	unzip $<
+	mv emma-2.0.5312 $@
+	touch $@
+
+
 
 # End
