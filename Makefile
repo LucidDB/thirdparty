@@ -18,7 +18,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	jgrapht jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds
 
-ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar
+ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
 
 # Unpack only optional third-party components
 optional: jswat jalopy emma
@@ -98,6 +98,10 @@ ant/lib/jakarta-oro-2.0.7.jar: ant
 
 ant/lib/ant-contrib.jar: ant
 	cp -f ant-contrib-1.0b2.jar ant/lib/ant-contrib.jar
+	touch $@
+
+ant/lib/jsch-0.1.24.jar: ant
+	cp -f jsch-0.1.24.jar ant/lib
 	touch $@
 
 jalopy: jalopy-ant-0.6.1.zip
