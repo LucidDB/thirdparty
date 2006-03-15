@@ -82,10 +82,14 @@ javacc: javacc-4.0.tar.gz
 	mv javacc-4.0 javacc
 	touch $@
 
-junit: junit3.8.1.zip
+junit: junit4.0.zip
+	-rm -rf junit4.0 $@
 	-rm -rf junit3.8.1 $@
 	unzip $<
-	mv junit3.8.1 junit
+	mv junit4.0 junit
+# this rename is to minimize reference disruptions
+# may need to change long term.
+	mv junit/junit-4.0.jar junit/junit.jar
 	touch $@
 
 ant/lib/junit.jar: ant junit
