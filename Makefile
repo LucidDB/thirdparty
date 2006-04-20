@@ -21,7 +21,7 @@ farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
 
 # Unpack only optional third-party components
-optional: jswat jalopy emma blackhawk
+optional: jswat jalopy emma xmlbeans blackhawk
 
 autotools: autoconf automake libtool
 
@@ -39,7 +39,7 @@ clean_farrago:
 	log4j jdbcappender jtds
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy jswat emma blackhawk
+	-rm -rf jalopy jswat emma xmlbeans blackhawk
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -252,5 +252,10 @@ blackhawk: blackhawk.tar.bz2
 	mv dist $@
 	touch $@
 
+xmlbeans: xmlbeans-2.1.0.zip
+	-rm -rf xmlbeans $@
+	unzip $<
+	mv xmlbeans-2.1.0 xmlbeans
+	touch $@
 
 # End
