@@ -14,7 +14,7 @@ fennel: boost stlport resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
-	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline \
+	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
 	jgrapht jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds
 
@@ -124,10 +124,18 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 	unzip $< -d $@
 	touch $@
 
-sqlline: sqlline-src-1_0_0.jar
-	-rm -rf sqlline-1_0_0$@
+sqlline: sqlline-src-1_0_2-swz.jar
+	-rm -rf sqlline-1_0_2 $@
 	jar xf $<
-	mv sqlline-1_0_0 sqlline
+	mv sqlline-1_0_2 sqlline
+	touch $@
+
+# Keep version-numbered jline so we know what version it is.  Copy it
+# to jline.jar to keep everyone's build happy. 
+# REVIEW: SWZ: 4/25/06: Consider just using the version-numbered JAR as-is
+jline.jar: jline-0_9_5.jar
+	-rm -rf $@
+	cp $< $@
 	touch $@
 
 jswat: jswat-2.29.zip
