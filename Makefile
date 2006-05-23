@@ -124,8 +124,13 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 	unzip $< -d $@
 	touch $@
 
+# TODO: SWZ: 5/23/2006: second rm is temporary.  I put the files into the
+# previous version of the JAR in the wrong path.  They now live inside the
+# sqlline-1_0_2 directory.  After a few weeks we can probably remove the
+# second rm as everyone will have synced the fix.
 sqlline: sqlline-src-1_0_2-swz.jar
 	-rm -rf sqlline-1_0_2 $@
+	-rm -rf sqlline.exception.patch sqlline.incremental.patch README.swz
 	jar xf $<
 	mv sqlline-1_0_2 sqlline
 	touch $@
