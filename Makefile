@@ -16,7 +16,7 @@ fennel: boost stlport resgen
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
 	jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender jtds
+	log4j jdbcappender jtds vjdbc
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
 
@@ -36,7 +36,7 @@ clean_fennel:
 clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender jtds
+	log4j jdbcappender jtds vjdbc
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy jswat emma xmlbeans blackhawk
@@ -128,11 +128,11 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 # previous version of the JAR in the wrong path.  They now live inside the
 # sqlline-1_0_2 directory.  After a few weeks we can probably remove the
 # second rm as everyone will have synced the fix.
-sqlline: sqlline-src-1_0_2-swz.jar
-	-rm -rf sqlline-1_0_2 $@
+sqlline: sqlline-src-1_0_2-jvs.jar
+	-rm -rf sqlline-1_0_2-jvs $@
 	-rm -rf sqlline.exception.patch sqlline.incremental.patch README.swz
 	jar xf $<
-	mv sqlline-1_0_2 sqlline
+	mv sqlline-1_0_2-jvs sqlline
 	touch $@
 
 # Keep version-numbered jline so we know what version it is.  Copy it
@@ -165,6 +165,12 @@ mdrlibs: mdrextras.tar.gz mdr-standalone.zip uml2mof.zip
 RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	-rm -rf $@
 	tar xfz $<
+	touch $@
+
+vjdbc: vjdbc_1_6_3.zip
+	-rm -rf $@ vjdbc_1_6_3
+	unzip $<
+	mv vjdbc_1_6_3 vjdbc
 	touch $@
 
 csvjdbc: csvjdbc-r0-10-schoi.zip
