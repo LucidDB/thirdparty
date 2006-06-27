@@ -73,7 +73,7 @@ else
   STLPORT := stlport4
 endif
 stlport: $(STLPORT)
-	rm -f stlport
+	rm -rf stlport
 	ln -s $(STLPORT) stlport
 
 # STLport 4 works with gcc 3.3 (and gcc 3.4?)
