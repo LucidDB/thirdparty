@@ -30,7 +30,7 @@ clean:  clean_fennel clean_farrago clean_optional clean_autotools
 
 # Remove only third-party components needed by Fennel
 clean_fennel:
-	-rm -rf boost stlport
+	-rm -rf boost stlport stlport4 stlport5
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
@@ -64,11 +64,32 @@ icu:	icu-2.8.patch.tgz
 	tar xfz $<
 	touch $@
 
-stlport:  STLport-4.6.2.tar.gz
+# identify gcc version 
+GCC_VER := $(shell g++ --version | head -n 1 | cut -f 2-3 -d ' ')
+# use stlport5 for g++ 4.x, otherwise stlport4
+ifneq (, $(findstring (GCC) 4., $(GCC_VER)))
+  STLPORT := stlport5
+else
+  STLPORT := stlport4
+endif
+stlport: $(STLPORT)
+	rm -rf stlport
+	ln -s $(STLPORT) stlport
+
+# STLport 4 works with gcc 3.3 (and gcc 3.4?)
+stlport4:  STLport-4.6.2.tar.gz
 	-rm -rf STLport-4.6.2 $@
 	tar xfz $<
-	mv STLport-4.6.2 stlport
+	mv STLport-4.6.2 $@
 	touch $@
+
+# patched STLport 5 works with gcc 4, and links like STLport 4.
+stlport5: STLport-5.0.2.tar.bz2 STLport-5.0.2.gcc4.patch
+	-rm -rf STLport $@
+	tar xjf $<
+	mv STLport $@
+	touch $@
+	patch -p 1 -d $@ < STLport-5.0.2.gcc4.patch
 
 ant: apache-ant-1.6.5-bin.tar.bz2
 	-rm -rf apache-ant-1.6.5 $@
