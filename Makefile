@@ -15,13 +15,13 @@ fennel: boost stlport resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgraphaddons resgen retroweaver \
+	jgrapht jgrapht7 jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds vjdbc
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
 
 # Unpack only optional third-party components
-optional: jswat emma xmlbeans blackhawk
+optional: jswat emma xmlbeans blackhawk tpch
 
 autotools: autoconf automake libtool
 
@@ -35,11 +35,11 @@ clean_fennel:
 # Remove only third-party components needed by Farrago
 clean_farrago:
 	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
-	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
+	hsqldb macker sqlline jgrapht jgrapht7 jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds vjdbc
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy jswat emma xmlbeans blackhawk
+	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -133,6 +133,13 @@ jgrapht: jgrapht-0.7.0alpha.tar.gz
 	-rm -rf jgrapht-0.7.0alpha-local $@
 	tar xfz $<
 	mv jgrapht-0.7.0alpha-local jgrapht
+	touch $@
+
+jgrapht7: jgrapht-0.7.0.tar.gz
+	-rm -rf jgrapht-0.7.0 $@
+	tar xfz $<
+	mv jgrapht-0.7.0 jgrapht7
+	mv jgrapht7/jgrapht-jdk1.5.jar jgrapht7/jgrapht7-jdk1.5.jar
 	touch $@
 
 jgraphaddons: jgraphaddons-1.0.5-src.zip
@@ -291,6 +298,11 @@ xmlbeans: xmlbeans-2.1.0.zip
 	-rm -rf xmlbeans $@
 	unzip $<
 	mv xmlbeans-2.1.0 xmlbeans
+	touch $@
+
+tpch: tpch.tar.gz
+	rm -rf $@
+	tar xfz $<
 	touch $@
 
 # End
