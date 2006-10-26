@@ -65,18 +65,18 @@ icu:	icu-2.8.patch.tgz
 	touch $@
 
 # identify gcc version 
-GCC_VER := $(shell g++ --version | head -n 1 | cut -f 2-3 -d ' ')
-# use stlport5 for g++ 4.x, otherwise stlport4
-ifneq (, $(findstring (GCC) 4., $(GCC_VER)))
-  STLPORT := stlport5
-else
+GCC_VER := $(shell gcc --version | head -n 1 | cut -f 2-3 -d ' ')
+# use stlport4 for g++ 3.3, otherwise stlport5
+ifneq (, $(findstring (GCC) 3.3., $(GCC_VER)))
   STLPORT := stlport4
+else
+  STLPORT := stlport5
 endif
 stlport: $(STLPORT)
 	rm -rf stlport
 	ln -s $(STLPORT) stlport
 
-# STLport 4 works with gcc 3.3 (and gcc 3.4?)
+# STLport 4 works with gcc 3.3
 stlport4:  STLport-4.6.2.tar.gz
 	-rm -rf STLport-4.6.2 $@
 	tar xfz $<
