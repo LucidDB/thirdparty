@@ -15,7 +15,7 @@ fennel: boost stlport resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgrapht7 jgraphaddons resgen retroweaver \
+	jgrapht jgrapht7 jgraphaddons resgen \
 	log4j jdbcappender jtds vjdbc
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
@@ -258,11 +258,6 @@ hsqldb: hsqldb_1_8_0_2.zip
 resgen: eigenbase-resgen-1.1.zip
 	-rm -rf $@
 	unzip $<
-	touch $@
-
-retroweaver: retroweaver-all.jar
-	-rm -rf $@
-	jar xf $<
 	touch $@
 
 jdbcappender: jdbcappender.zip 
