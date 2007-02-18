@@ -271,10 +271,10 @@ jdbcappender: jdbcappender.zip
 	unzip $< -d $@
 	touch $@
 
-log4j: logging-log4j-1.3alpha-7.tar.gz
-	-rm -rf $@ logging-log4j-1.3alpha-7
+log4j: logging-log4j-1.3alpha-8.tar.gz
+	-rm -rf $@ logging-log4j-1.3alpha-8
 	tar zxf $< 
-	mv logging-log4j-1.3alpha-7 $@
+	mv logging-log4j-1.3alpha-8 $@
 	touch $@
 
 jtds: jtds-1.2-dist.zip 
