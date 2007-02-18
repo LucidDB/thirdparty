@@ -275,6 +275,10 @@ log4j: logging-log4j-1.3alpha-8.tar.gz
 	-rm -rf $@ logging-log4j-1.3alpha-8
 	tar zxf $< 
 	mv logging-log4j-1.3alpha-8 $@
+	( cd log4j && \
+		ant log4j-oro.jar && \
+		cp dist/lib/log4j-oro-1.3alpha-8.jar lib && \
+		jar -uf lib/log4j-all-1.3alpha-8.jar -C dist/classes org )
 	touch $@
 
 jtds: jtds-1.2-dist.zip 
