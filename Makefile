@@ -128,10 +128,10 @@ ant/lib/jsch-0.1.24.jar: ant
 	cp -f jsch-0.1.24.jar ant/lib
 	touch $@
 
-jgrapht: jgrapht-0.7.0.tar.gz
-	-rm -rf jgrapht-0.7.0 $@
+jgrapht: jgrapht-0.7.1.tar.gz
+	-rm -rf jgrapht-0.7.1 $@
 	tar xfz $<
-	mv jgrapht-0.7.0 jgrapht
+	mv jgrapht-0.7.1 jgrapht
 	touch $@
 
 jgraphaddons: jgraphaddons-1.0.5-src.zip
