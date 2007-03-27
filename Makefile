@@ -182,10 +182,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-vjdbc: vjdbc_1_6_3_jvs.zip
-	-rm -rf $@ vjdbc_1_6_3_jvs
+vjdbc: vjdbc_1_6_5.zip
+	-rm -rf $@ vjdbc_1_6_5
 	unzip $<
-	mv vjdbc_1_6_3_jvs vjdbc
+	mv vjdbc_1_6_5 vjdbc
 	touch $@
 
 csvjdbc: csvjdbc-r0-10-schoi.zip
