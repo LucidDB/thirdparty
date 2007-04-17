@@ -13,7 +13,7 @@ all:
 fennel: boost stlport resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
-farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
+farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
 	jgrapht jgraphaddons resgen vjdbc
 
@@ -33,7 +33,7 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
+	-rm -rf ant javacc junit/junit.jar mdrlibs RmiJdbc csvjdbc janino OpenJava \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds vjdbc
 
@@ -102,19 +102,11 @@ javacc: javacc-4.0.tar.gz
 	mv javacc-4.0 javacc
 	touch $@
 
-junit: junit4.0.zip
-	-rm -rf junit4.0 $@
-	-rm -rf junit3.8.1 $@
-	unzip $<
-	mv junit4.0 junit
-# this rename is to minimize reference disruptions
-# may need to change long term.
-	mv junit/junit-4.0.jar junit/junit.jar
-	touch $@
+junit/junit.jar: junit/junit-4.1.jar
+	cp -f junit/junit-4.1.jar junit/junit.jar
 
-ant/lib/junit.jar: ant junit
-	cp junit/junit.jar ant/lib
-	touch $@
+ant/lib/junit.jar: ant junit/junit.jar
+	cp -f junit/junit.jar ant/lib
 
 ant/lib/jakarta-oro-2.0.7.jar: ant
 	cp -f jakarta-oro-2.0.7.jar ant/lib
@@ -182,10 +174,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-vjdbc: vjdbc_1_6_3_jvs.zip
-	-rm -rf $@ vjdbc_1_6_3_jvs
+vjdbc: vjdbc_1_6_5-jvs.zip
+	-rm -rf $@ vjdbc_1_6_5-jvs
 	unzip $<
-	mv vjdbc_1_6_3_jvs vjdbc
+	mv vjdbc_1_6_5-jvs vjdbc
 	touch $@
 
 csvjdbc: csvjdbc-r0-10-schoi.zip
