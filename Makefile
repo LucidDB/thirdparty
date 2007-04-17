@@ -15,13 +15,12 @@ fennel: boost stlport resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgrapht7 jgraphaddons resgen retroweaver \
-	log4j jdbcappender jtds vjdbc
+	jgrapht jgrapht7 jgraphaddons resgen vjdbc
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
 
 # Unpack only optional third-party components
-optional: jswat emma xmlbeans blackhawk tpch
+optional: jswat emma xmlbeans blackhawk tpch log4j jdbcappender jtds
 
 autotools: autoconf automake libtool
 
@@ -202,10 +201,10 @@ csvjdbc: csvjdbc-r0-10-schoi.zip
 	mv csvjdbc-r0-10-schoi csvjdbc
 	touch $@
 
-janino: janino-2.3.18-swz.zip
+janino: janino-2.5.0-jvs.zip
 	-rm -rf $@
 	unzip $<
-	mv janino-2.3.18-swz janino
+	mv janino-2.5.0 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
@@ -258,11 +257,6 @@ hsqldb: hsqldb_1_8_0_2.zip
 resgen: eigenbase-resgen-1.1.zip
 	-rm -rf $@
 	unzip $<
-	touch $@
-
-retroweaver: retroweaver-all.jar
-	-rm -rf $@
-	jar xf $<
 	touch $@
 
 jdbcappender: jdbcappender.zip 
