@@ -90,10 +90,10 @@ stlport5: STLport-5.0.2.tar.bz2 STLport-5.0.2.gcc4.patch
 	touch $@
 	patch -p 1 -d $@ < STLport-5.0.2.gcc4.patch
 
-ant: apache-ant-1.6.5-bin.tar.bz2
-	-rm -rf apache-ant-1.6.5 $@
+ant: apache-ant-1.7.0-bin.tar.bz2
+	-rm -rf apache-ant-1.7.0 $@
 	bzip2 -d -k -c $< | tar -x
-	mv apache-ant-1.6.5 ant
+	mv apache-ant-1.7.0 ant
 	touch $@
 
 javacc: javacc-4.0.tar.gz
