@@ -13,9 +13,9 @@ all:
 fennel: boost stlport resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
-farrago: ant_ext javacc junit ant/lib/junit.jar ant mdrlibs \
+farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgrapht7 jgraphaddons resgen vjdbc
+	jgrapht jgraphaddons resgen vjdbc
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
 
@@ -33,8 +33,8 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit mdrlibs RmiJdbc csvjdbc janino OpenJava \
-	hsqldb macker sqlline jgrapht jgrapht7 jgraphaddons resgen retroweaver \
+	-rm -rf ant javacc junit/junit.jar mdrlibs RmiJdbc csvjdbc janino OpenJava \
+	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds vjdbc
 
 clean_optional: clean_obsolete clean_autotools
@@ -46,7 +46,7 @@ clean_autotools:
 # Remove components which we used to have but are now obsolete.
 # NOTE jvs 20-Apr-2005:  now we use the jgraph.jar from JGraphT
 clean_obsolete:
-	-rm -rf dynamicjava jgraph icu isql
+	-rm -rf dynamicjava jgraph icu isql jgrapht7
 
 # Rules for unpacking specific components follow.  Note that as part
 # of unpacking, we hide the version, so other parts of the build can
@@ -90,10 +90,10 @@ stlport5: STLport-5.0.2.tar.bz2 STLport-5.0.2.gcc4.patch
 	touch $@
 	patch -p 1 -d $@ < STLport-5.0.2.gcc4.patch
 
-ant: apache-ant-1.6.5-bin.tar.bz2
-	-rm -rf apache-ant-1.6.5 $@
+ant: apache-ant-1.7.0-bin.tar.bz2
+	-rm -rf apache-ant-1.7.0 $@
 	bzip2 -d -k -c $< | tar -x
-	mv apache-ant-1.6.5 ant
+	mv apache-ant-1.7.0 ant
 	touch $@
 
 javacc: javacc-4.0.tar.gz
@@ -102,19 +102,11 @@ javacc: javacc-4.0.tar.gz
 	mv javacc-4.0 javacc
 	touch $@
 
-junit: junit4.0.zip
-	-rm -rf junit4.0 $@
-	-rm -rf junit3.8.1 $@
-	unzip $<
-	mv junit4.0 junit
-# this rename is to minimize reference disruptions
-# may need to change long term.
-	mv junit/junit-4.0.jar junit/junit.jar
-	touch $@
+junit/junit.jar: junit/junit-4.1.jar
+	cp -f junit/junit-4.1.jar junit/junit.jar
 
-ant/lib/junit.jar: ant junit
-	cp junit/junit.jar ant/lib
-	touch $@
+ant/lib/junit.jar: ant junit/junit.jar
+	cp -f junit/junit.jar ant/lib
 
 ant/lib/jakarta-oro-2.0.7.jar: ant
 	cp -f jakarta-oro-2.0.7.jar ant/lib
@@ -128,17 +120,10 @@ ant/lib/jsch-0.1.24.jar: ant
 	cp -f jsch-0.1.24.jar ant/lib
 	touch $@
 
-jgrapht: jgrapht-0.7.0alpha.tar.gz
-	-rm -rf jgrapht-0.7.0alpha-local $@
+jgrapht: jgrapht-0.7.1.tar.gz
+	-rm -rf jgrapht-0.7.1 $@
 	tar xfz $<
-	mv jgrapht-0.7.0alpha-local jgrapht
-	touch $@
-
-jgrapht7: jgrapht-0.7.0.tar.gz
-	-rm -rf jgrapht-0.7.0 $@
-	tar xfz $<
-	mv jgrapht-0.7.0 jgrapht7
-	mv jgrapht7/jgrapht-jdk1.5.jar jgrapht7/jgrapht7-jdk1.5.jar
+	mv jgrapht-0.7.1 jgrapht
 	touch $@
 
 jgraphaddons: jgraphaddons-1.0.5-src.zip
@@ -189,10 +174,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-vjdbc: vjdbc_1_6_3_jvs.zip
-	-rm -rf $@ vjdbc_1_6_3_jvs
+vjdbc: vjdbc_1_6_5-jvs.zip
+	-rm -rf $@ vjdbc_1_6_5-jvs
 	unzip $<
-	mv vjdbc_1_6_3_jvs vjdbc
+	mv vjdbc_1_6_5-jvs vjdbc
 	touch $@
 
 csvjdbc: csvjdbc-r0-10-schoi.zip
