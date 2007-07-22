@@ -250,10 +250,10 @@ jdbcappender: jdbcappender.zip
 	unzip $< -d $@
 	touch $@
 
-diffj: diffj-1.1.1.zip
+diffj: diffj-1.1.1.zip ant
 	-rm -rf $@ diffj-1.1.1
 	unzip $<
-	cd diffj-1.1.1 && ant jarfile
+	cd diffj-1.1.1 && ../ant/bin/ant jarfile
 	mv diffj-1.1.1 $@
 	touch $@
 
