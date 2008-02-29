@@ -15,9 +15,9 @@ fennel: boost stlport resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgraphaddons resgen vjdbc diffj
+	jgrapht jgraphaddons resgen vjdbc diffj findbugs
 
-ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar
+ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar ant/lib/findbugs-ant.jar
 
 # Unpack only optional third-party components
 optional: jswat emma xmlbeans blackhawk tpch log4j jdbcappender jtds
@@ -33,9 +33,10 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit/junit.jar mdrlibs RmiJdbc csvjdbc janino OpenJava \
+	-rm -rf ant javacc junit/junit.jar mdrlibs RmiJdbc csvjdbc janino \
+	OpenJava \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender jtds vjdbc
+	log4j jdbcappender jtds vjdbc findbugs
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch
@@ -118,6 +119,10 @@ ant/lib/ant-contrib.jar: ant
 
 ant/lib/jsch-0.1.24.jar: ant
 	cp -f jsch-0.1.24.jar ant/lib
+	touch $@
+
+ant/lib/findbugs-ant.jar: ant findbugs
+	cp -f findbugs/lib/findbugs-ant.jar $@
 	touch $@
 
 jgrapht: jgrapht-0.7.1.tar.gz
@@ -283,6 +288,12 @@ xmlbeans: xmlbeans-2.1.0.zip
 tpch: tpch.tar.gz
 	rm -rf $@
 	tar xfz $<
+	touch $@
+
+findbugs: findbugs-1.3.2.tar.gz
+	-rm -rf findbugs-1.3.2 $@
+	tar xfz $<
+	mv findbugs-1.3.2 findbugs
 	touch $@
 
 # End
