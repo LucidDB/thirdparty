@@ -169,9 +169,10 @@ mdrlibs: mdrextras.tar.gz mdr-standalone.zip uml2mof.zip
 	unzip -n uml2mof.zip -d mdrlibs
 	touch $@
 
-enki: eigenbase-enki-0.1.0.tar.gz
+enki: eigenbase-enki-0.1.0.tar.gz eigenbase-enki-0.1.0-libs.tar.gz 
 	-rm -rf $@
-	tar xfz $<
+	tar xfz eigenbase-enki-0.1.0.tar.gz
+	tar xfz eigenbase-enki-0.1.0-libs.tar.gz
 	mv eigenbase-enki-0.1.0 $@
 	mv $@/eigenbase-enki-0.1.0.jar $@/enki.jar
 	mv $@/eigenbase-enki-0.1.0-src.jar $@/enki-src.jar
