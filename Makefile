@@ -15,7 +15,7 @@ fennel: boost stlport resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs enki \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgraphaddons resgen vjdbc diffj findbugs
+	jgrapht jgraphaddons resgen vjdbc diffj findbugs mysql-connector
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar ant/lib/findbugs-ant.jar
 
@@ -136,10 +136,10 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 	unzip $< -d $@
 	touch $@
 
-sqlline: sqlline-src-1_0_4-jh.jar
-	-rm -rf sqlline-1_0_3-sh $@
+sqlline: sqlline-src-1_0_5-eb.jar
+	-rm -rf $@
 	jar xf $<
-	mv sqlline-1_0_4-jh sqlline
+	mv sqlline-1_0_5-eb sqlline
 	touch $@
 
 # Keep version-numbered jline so we know what version it is.  Copy it
@@ -306,6 +306,12 @@ findbugs: findbugs-1.3.2.tar.gz
 	-rm -rf findbugs-1.3.2 $@
 	tar xfz $<
 	mv findbugs-1.3.2 findbugs
+	touch $@
+
+mysql-connector: mysql-connector-java-3.1.14.zip
+	-rm -rf mysql-connector-java-3.1.14 $@
+	unzip -o $<
+	mv mysql-connector-java-3.1.14 $@
 	touch $@
 
 # End
