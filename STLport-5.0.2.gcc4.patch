@@ -40,8 +40,7 @@ diff -ur STLport/stlport/stl/type_manips.h stlport/stlport/stl/type_manips.h
  #ifndef _STLP_TYPE_MANIPS_H
  #define _STLP_TYPE_MANIPS_H
  
-+// g++ 4.0, 4.1, and 4.2 define their own struct __true_type and struct __false_type in global namespace:
-+// use them to avoid ambiguities. 
++// g++ 4.0, 4.1, and 4.2 define their own struct __true_type and struct __false_type in global namespace: use them to avoid ambiguities. 
 +// jhyde: disabled this patch for gcc-4.2. 4.2.3 does not need it; I don't know about other 4.2.x.
 +#if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ < 2)
 +#define USE_NATIVE_TRUE_TYPE
