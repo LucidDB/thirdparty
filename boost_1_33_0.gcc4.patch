@@ -1,0 +1,15 @@
+# Patch boost so that don't get '<unnamed>::_3 defined but not used' warnings
+# $Id: $
+diff -ur Boost/boost/bind/placeholders.hpp boost/boost/bind/placeholders.hpp
+--- Boost/boost/bind/placeholders.hpp	2004/07/26 00:31:59	1.13
++++ boost/boost/bind/placeholders.hpp	2005/10/06 19:03:19	1.14
+@@ -25,7 +25,7 @@
+ namespace
+ {
+ 
+-#if defined(__BORLANDC__)
++#if defined(__BORLANDC__) || defined(__GNUC__)
+ 
+ static inline boost::arg<1> _1() { return boost::arg<1>(); }
+ static inline boost::arg<2> _2() { return boost::arg<2>(); }
+# End
