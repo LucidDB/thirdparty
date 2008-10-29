@@ -137,10 +137,10 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 	unzip $< -d $@
 	touch $@
 
-sqlline: sqlline-src-1_0_6-jh.jar
+sqlline: sqlline-src-1_0_6-eb.jar
 	-rm -rf $@
 	jar xf $<
-	mv sqlline-1_0_6-jh sqlline
+	mv sqlline-1_0_6-eb sqlline
 	touch $@
 
 # Keep version-numbered jline so we know what version it is.  Copy it
