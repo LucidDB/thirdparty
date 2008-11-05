@@ -166,7 +166,7 @@ macker: macker-0.4.1.tar.gz
 mdrlibs: mdrextras.tar.gz mdr-standalone.zip uml2mof.zip mdrsrc.tar.bz2
 	-rm -rf $@
 	tar xfz mdrextras.tar.gz
-	tar xfj mdrsrc.tar.bz2
+	tar xCfj netbeans mdrsrc.tar.bz2
 	unzip mdr-standalone.zip -d mdrlibs
 	unzip -n uml2mof.zip -d mdrlibs
 	touch $@
