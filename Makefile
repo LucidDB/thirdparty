@@ -252,7 +252,7 @@ hsqldb: hsqldb_1_8_0_2.zip
 	unzip $<
 	touch $@
 
-resgen: eigenbase-resgen-1.1.zip
+resgen: eigenbase-resgen-1.3.zip
 	-rm -rf $@
 	unzip $<
 	touch $@
