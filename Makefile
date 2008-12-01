@@ -137,10 +137,10 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 	unzip $< -d $@
 	touch $@
 
-sqlline: sqlline-src-1_0_5-eb.jar
+sqlline: sqlline-src-1_0_6-eb.jar
 	-rm -rf $@
 	jar xf $<
-	mv sqlline-1_0_5-eb sqlline
+	mv sqlline-1_0_6-eb sqlline
 	touch $@
 
 # Keep version-numbered jline so we know what version it is.  Copy it
@@ -163,9 +163,10 @@ macker: macker-0.4.1.tar.gz
 	mv macker-0.4.1 macker
 	touch $@
 
-mdrlibs: mdrextras.tar.gz mdr-standalone.zip uml2mof.zip
+mdrlibs: mdrextras.tar.gz mdr-standalone.zip uml2mof.zip mdrsrc.tar.bz2
 	-rm -rf $@
 	tar xfz mdrextras.tar.gz
+	tar xCfj netbeans mdrsrc.tar.bz2
 	unzip mdr-standalone.zip -d mdrlibs
 	unzip -n uml2mof.zip -d mdrlibs
 	touch $@
