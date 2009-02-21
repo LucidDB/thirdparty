@@ -316,9 +316,9 @@ mysql-connector: mysql-connector-java-3.1.14.zip
 	mv mysql-connector-java-3.1.14 $@
 	touch $@
 
-ssb: ssb.tar.gz
+ssb: ssb.tar.bz2
 	rm -rf $@
-	tar xfz $<
+	bzip2 $< -d -k -c | tar -x
 	touch $@
 
 # End
