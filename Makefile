@@ -20,7 +20,7 @@ farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs enki \
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar ant/lib/findbugs-ant.jar
 
 # Unpack only optional third-party components
-optional: jswat emma xmlbeans blackhawk tpch log4j jdbcappender jtds
+optional: jswat emma xmlbeans blackhawk tpch log4j jdbcappender jtds ssb
 
 autotools: autoconf automake libtool
 
@@ -39,7 +39,7 @@ clean_farrago:
 	log4j jdbcappender jtds vjdbc findbugs
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch
+	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch ssb
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -314,6 +314,11 @@ mysql-connector: mysql-connector-java-3.1.14.zip
 	-rm -rf mysql-connector-java-3.1.14 $@
 	unzip -o $<
 	mv mysql-connector-java-3.1.14 $@
+	touch $@
+
+ssb: ssb.tar.bz2
+	rm -rf $@
+	bzip2 $< -d -k -c | tar -x
 	touch $@
 
 # End
