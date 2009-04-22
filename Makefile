@@ -1,11 +1,16 @@
 # $Id$
 
+# NOTE jvs 28-Oct-2008:  References to P4CONFIG in this Makefile
+# are a workaround for some serious brain-damage in some versions
+# of patch:
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=200895
+
 # Unpack all third-party components
 nothing:  
 	@echo Please specify a target from 
-	@echo { all, fennel, farrago, optional, autotools, clean }
+	@echo { all, fennel, farrago, optional, clean }
 
-# Unpack everything except autotools
+# Unpack everything
 all:
 	make fennel farrago optional
 
@@ -22,7 +27,8 @@ ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib
 # Unpack only optional third-party components
 optional: jswat emma xmlbeans blackhawk tpch log4j jdbcappender jtds ssb
 
-autotools: autoconf automake libtool
+autotools:
+	echo autotools are no longer needed by Fennel build!
 
 # Remove all third-party components
 clean:  clean_fennel clean_farrago clean_optional clean_autotools
@@ -53,44 +59,25 @@ clean_obsolete:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost_1_33_0.tar.bz2 boost_1_33_0.gcc4.patch
-	-rm -rf boost_1_33_0 $@
+boost:  boost_1_38_0-slimfast.tar.bz2 Boost-fennel.patch
+	-rm -rf boost_1_38_0 $@
 	bzip2 -d -k -c $< | tar -x
-	mv boost_1_33_0 boost
+	mv boost_1_38_0 boost
 	touch $@
-	patch -p 1 -d $@ -g 0 < boost_1_33_0.gcc4.patch
+	unset P4CONFIG; patch -p 1 -d $@ < Boost-fennel.patch
 
 icu:	icu-2.8.patch.tgz
 	-rm -rf $@
 	tar xfz $<
 	touch $@
 
-# identify gcc version 
-GCC_VER := $(shell gcc --version | head -n 1 | cut -f 2-3 -d ' ')
-# use stlport4 for g++ 3.3, otherwise stlport5
-ifneq (, $(findstring (GCC) 3.3., $(GCC_VER)))
-  STLPORT := stlport4
-else
-  STLPORT := stlport5
-endif
-stlport: $(STLPORT)
-	rm -rf stlport
-	ln -s $(STLPORT) stlport
-
-# STLport 4 works with gcc 3.3
-stlport4:  STLport-4.6.2.tar.gz
-	-rm -rf STLport-4.6.2 $@
-	tar xfz $<
-	mv STLport-4.6.2 $@
-	touch $@
-
-# patched STLport 5 works with gcc 4, and links like STLport 4.
-stlport5: STLport-5.0.2.tar.bz2 STLport-5.0.2.gcc4.patch
-	-rm -rf STLport $@
+stlport: STLport-5.1.6.tar.bz2 STLport-fennel.patch stlport-msvc9-r3503.patch
+	-rm -rf STLport-5.1.6 $@
 	tar xjf $<
-	mv STLport $@
+	mv STLport-5.1.6 $@
 	touch $@
-	patch -p 1 -d $@ < STLport-5.0.2.gcc4.patch
+	unset P4CONFIG; patch -p 1 -d $@ < STLport-fennel.patch
+	unset P4CONFIG; patch -p 1 -d $@ < stlport-msvc9-r3503.patch
 
 ant: apache-ant-1.7.0-bin.tar.bz2
 	-rm -rf apache-ant-1.7.0 $@
