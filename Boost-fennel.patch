@@ -1,0 +1,14 @@
+# $Id$
+# patch Boost to avoid crashes on unit test exit
+diff -ur boost-orig/boost/test/unit_test_suite_impl.hpp boost/boost/test/unit_test_suite_impl.hpp
+--- boost-orig/boost/test/unit_test_suite_impl.hpp	2008-10-13 01:20:26.000000000 -0700
++++ boost/boost/test/unit_test_suite_impl.hpp	2009-04-19 00:48:10.000000000 -0700
+@@ -72,7 +72,7 @@
+     void                                increase_exp_fail( unsigned num );
+ 
+ protected:
+-    ~test_unit();
++    virtual ~test_unit();
+ 
+ private:
+     // Data members
