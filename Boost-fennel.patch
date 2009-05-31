@@ -1,8 +1,263 @@
-# $Id$
-# patch Boost to avoid crashes on unit test exit
-diff -ur boost-orig/boost/test/unit_test_suite_impl.hpp boost/boost/test/unit_test_suite_impl.hpp
---- boost-orig/boost/test/unit_test_suite_impl.hpp	2008-10-13 01:20:26.000000000 -0700
-+++ boost/boost/test/unit_test_suite_impl.hpp	2009-04-19 00:48:10.000000000 -0700
+diff -ur boost_1_38_0/boost/test/detail/global_typedef.hpp boost_1_38_0_modified/boost/test/detail/global_typedef.hpp
+--- boost_1_38_0/boost/test/detail/global_typedef.hpp	2008-10-13 01:20:26.000000000 -0700
++++ boost_1_38_0_modified/boost/test/detail/global_typedef.hpp	2009-05-30 18:09:50.000000000 -0700
+@@ -1,6 +1,6 @@
+ //  (C) Copyright Gennadiy Rozental 2001-2008.
+ //  Distributed under the Boost Software License, Version 1.0.
+-//  (See accompanying file LICENSE_1_0.txt or copy at 
++//  (See accompanying file LICENSE_1_0.txt or copy at
+ //  http://www.boost.org/LICENSE_1_0.txt)
+ 
+ //  See http://www.boost.org/libs/test for the library home page.
+@@ -45,6 +45,7 @@
+ //____________________________________________________________________________//
+ 
+ typedef unsigned long   test_unit_id;
++
+ const test_unit_id INV_TEST_UNIT_ID  = 0xFFFFFFFF;
+ const test_unit_id MAX_TEST_CASE_ID  = 0xFFFFFFFE;
+ const test_unit_id MIN_TEST_CASE_ID  = 0x00010000;
+@@ -53,6 +54,8 @@
+ 
+ //____________________________________________________________________________//
+ 
++namespace ut_detail {
++
+ inline test_unit_type
+ test_id_2_unit_type( test_unit_id id )
+ {
+@@ -61,6 +64,18 @@
+ 
+ //____________________________________________________________________________//
+ 
++// helper templates to prevent ODR violations
++template<class T>
++struct static_constant {
++    static T value;
++};
++
++template<class T>
++T static_constant<T>::value;
++
++//____________________________________________________________________________//
++
++} // namespace ut_detail
+ } // namespace unit_test
+ 
+ } // namespace boost
+Only in boost_1_38_0_modified/boost/test/detail: global_typedef.hpp~
+diff -ur boost_1_38_0/boost/test/floating_point_comparison.hpp boost_1_38_0_modified/boost/test/floating_point_comparison.hpp
+--- boost_1_38_0/boost/test/floating_point_comparison.hpp	2008-10-13 01:20:26.000000000 -0700
++++ boost_1_38_0_modified/boost/test/floating_point_comparison.hpp	2009-05-30 18:11:49.000000000 -0700
+@@ -1,6 +1,6 @@
+ //  (C) Copyright Gennadiy Rozental 2001-2008.
+ //  Distributed under the Boost Software License, Version 1.0.
+-//  (See accompanying file LICENSE_1_0.txt or copy at 
++//  (See accompanying file LICENSE_1_0.txt or copy at
+ //  http://www.boost.org/LICENSE_1_0.txt)
+ 
+ //  See http://www.boost.org/libs/test for the library home page.
+@@ -16,7 +16,8 @@
+ #define BOOST_TEST_FLOATING_POINT_COMPARISON_HPP_071894GER
+ 
+ #include <boost/limits.hpp>  // for std::numeric_limits
+-
++// Boost.Test
++#include <boost/test/detail/global_typedef.hpp>
+ #include <boost/test/utils/class_properties.hpp>
+ 
+ #include <boost/test/detail/suppress_warnings.hpp>
+@@ -48,7 +49,7 @@
+ // FPT is Floating-Point Type: float, double, long double or User-Defined.
+ template<typename FPT>
+ inline FPT
+-fpt_abs( FPT arg ) 
++fpt_abs( FPT arg )
+ {
+     return arg < static_cast<FPT>(0) ? -arg : arg;
+ }
+@@ -79,12 +80,12 @@
+ safe_fpt_division( FPT f1, FPT f2 )
+ {
+     // Avoid overflow.
+-    if( f2 < static_cast<FPT>(1)  && f1 > f2*fpt_limits<FPT>::max_value() )
++    if( (f2 < static_cast<FPT>(1)  && f1 > f2*fpt_limits<FPT>::max_value()) )
+         return fpt_limits<FPT>::max_value();
+ 
+     // Avoid underflow.
+-    if( f1 == static_cast<FPT>(0) ||
+-        f2 > static_cast<FPT>(1) && f1 < f2*fpt_limits<FPT>::min_value() )
++    if( (f1 == static_cast<FPT>(0)) ||
++        (f2 > static_cast<FPT>(1) && f1 < f2*fpt_limits<FPT>::min_value()) )
+         return static_cast<FPT>(0);
+ 
+     return f1/f2;
+@@ -162,14 +163,14 @@
+ 
+     // Constructor
+     template<typename ToleranceBaseType>
+-    explicit    close_at_tolerance( percent_tolerance_t<ToleranceBaseType>  tolerance, 
+-                                    floating_point_comparison_type          fpc_type = FPC_STRONG ) 
++    explicit    close_at_tolerance( percent_tolerance_t<ToleranceBaseType>  tolerance,
++                                    floating_point_comparison_type          fpc_type = FPC_STRONG )
+     : p_fraction_tolerance( tt_detail::fpt_abs( static_cast<FPT>(0.01)*tolerance.m_value ) )
+     , p_strong_or_weak( fpc_type ==  FPC_STRONG )
+     {}
+     template<typename ToleranceBaseType>
+-    explicit    close_at_tolerance( fraction_tolerance_t<ToleranceBaseType> tolerance, 
+-                                    floating_point_comparison_type          fpc_type = FPC_STRONG ) 
++    explicit    close_at_tolerance( fraction_tolerance_t<ToleranceBaseType> tolerance,
++                                    floating_point_comparison_type          fpc_type = FPC_STRONG )
+     : p_fraction_tolerance( tt_detail::fpt_abs( tolerance.m_value ) )
+     , p_strong_or_weak( fpc_type ==  FPC_STRONG )
+     {}
+@@ -179,9 +180,9 @@
+         FPT diff = tt_detail::fpt_abs( left - right );
+         FPT d1   = tt_detail::safe_fpt_division( diff, tt_detail::fpt_abs( right ) );
+         FPT d2   = tt_detail::safe_fpt_division( diff, tt_detail::fpt_abs( left ) );
+-        
+-        return p_strong_or_weak 
+-                   ? (d1 <= p_fraction_tolerance.get() && d2 <= p_fraction_tolerance.get()) 
++
++        return p_strong_or_weak
++                   ? (d1 <= p_fraction_tolerance.get() && d2 <= p_fraction_tolerance.get())
+                    : (d1 <= p_fraction_tolerance.get() || d2 <= p_fraction_tolerance.get());
+     }
+ 
+@@ -202,7 +203,7 @@
+ 
+     template<typename FPT, typename ToleranceBaseType>
+     bool
+-    operator()( FPT left, FPT right, percent_tolerance_t<ToleranceBaseType> tolerance, 
++    operator()( FPT left, FPT right, percent_tolerance_t<ToleranceBaseType> tolerance,
+                 floating_point_comparison_type fpc_type = FPC_STRONG )
+     {
+         close_at_tolerance<FPT> pred( tolerance, fpc_type );
+@@ -211,7 +212,7 @@
+     }
+     template<typename FPT, typename ToleranceBaseType>
+     bool
+-    operator()( FPT left, FPT right, fraction_tolerance_t<ToleranceBaseType> tolerance, 
++    operator()( FPT left, FPT right, fraction_tolerance_t<ToleranceBaseType> tolerance,
+                 floating_point_comparison_type fpc_type = FPC_STRONG )
+     {
+         close_at_tolerance<FPT> pred( tolerance, fpc_type );
+@@ -221,7 +222,7 @@
+ };
+ 
+ namespace {
+-check_is_close_t check_is_close;
++check_is_close_t const& check_is_close = unit_test::ut_detail::static_constant<check_is_close_t>::value;
+ }
+ 
+ //____________________________________________________________________________//
+@@ -243,7 +244,7 @@
+ };
+ 
+ namespace {
+-check_is_small_t check_is_small;
++check_is_small_t const& check_is_small = unit_test::ut_detail::static_constant<check_is_small_t>::value;
+ }
+ 
+ //____________________________________________________________________________//
+Only in boost_1_38_0_modified/boost/test: floating_point_comparison.hpp~
+diff -ur boost_1_38_0/boost/test/impl/framework.ipp boost_1_38_0_modified/boost/test/impl/framework.ipp
+--- boost_1_38_0/boost/test/impl/framework.ipp	2008-10-13 01:20:26.000000000 -0700
++++ boost_1_38_0_modified/boost/test/impl/framework.ipp	2009-05-30 18:12:14.000000000 -0700
+@@ -127,7 +127,7 @@
+             test_unit_store::value_type const& tu = *m_test_units.begin();
+ 
+             // the delete will erase this element from map
+-            if( test_id_2_unit_type( tu.second->p_id ) == tut_suite )
++            if( ut_detail::test_id_2_unit_type( tu.second->p_id ) == tut_suite )
+                 delete  (test_suite const*)tu.second;
+             else
+                 delete  (test_case const*)tu.second;
+Only in boost_1_38_0_modified/boost/test/impl: framework.ipp~
+diff -ur boost_1_38_0/boost/test/impl/unit_test_suite.ipp boost_1_38_0_modified/boost/test/impl/unit_test_suite.ipp
+--- boost_1_38_0/boost/test/impl/unit_test_suite.ipp	2008-10-13 01:20:26.000000000 -0700
++++ boost_1_38_0_modified/boost/test/impl/unit_test_suite.ipp	2009-05-30 18:12:59.000000000 -0700
+@@ -173,7 +173,7 @@
+ test_suite::get( const_string tu_name ) const
+ {
+     BOOST_TEST_FOREACH( test_unit_id, id, m_members ) {
+-        if( tu_name == framework::get( id, test_id_2_unit_type( id ) ).p_name.get() )
++        if( tu_name == framework::get( id, ut_detail::test_id_2_unit_type( id ) ).p_name.get() )
+             return id;
+     }
+ 
+@@ -228,7 +228,7 @@
+ void
+ traverse_test_tree( test_unit_id id, test_tree_visitor& V )
+ {
+-    if( test_id_2_unit_type( id ) == tut_case )
++    if( ut_detail::test_id_2_unit_type( id ) == tut_case )
+         traverse_test_tree( framework::get<test_case>( id ), V );
+     else
+         traverse_test_tree( framework::get<test_suite>( id ), V );
+Only in boost_1_38_0_modified/boost/test/impl: unit_test_suite.ipp~
+diff -ur boost_1_38_0/boost/test/parameterized_test.hpp boost_1_38_0_modified/boost/test/parameterized_test.hpp
+--- boost_1_38_0/boost/test/parameterized_test.hpp	2008-10-13 01:20:26.000000000 -0700
++++ boost_1_38_0_modified/boost/test/parameterized_test.hpp	2009-05-30 18:13:15.000000000 -0700
+@@ -1,6 +1,6 @@
+ //  (C) Copyright Gennadiy Rozental 2001-2008.
+ //  Distributed under the Boost Software License, Version 1.0.
+-//  (See accompanying file LICENSE_1_0.txt or copy at 
++//  (See accompanying file LICENSE_1_0.txt or copy at
+ //  http://www.boost.org/LICENSE_1_0.txt)
+ 
+ //  See http://www.boost.org/libs/test for the library home page.
+@@ -73,7 +73,7 @@
+ class param_test_case_generator : public test_unit_generator {
+ public:
+     param_test_case_generator( callback1<ParamType> const&  test_func,
+-                               const_string                 tc_name, 
++                               const_string                 tc_name,
+                                ParamIter                    par_begin,
+                                ParamIter                    par_end )
+     : m_test_func( test_func )
+@@ -82,7 +82,7 @@
+     , m_par_end( par_end )
+     {}
+ 
+-    test_unit* next() const
++    virtual test_unit* next() const
+     {
+         if( m_par_begin == m_par_end )
+             return (test_unit*)0;
+@@ -127,7 +127,7 @@
+ template<typename ParamType, typename ParamIter>
+ inline ut_detail::param_test_case_generator<ParamType,ParamIter>
+ make_test_case( callback1<ParamType> const& test_func,
+-                const_string   tc_name, 
++                const_string   tc_name,
+                 ParamIter      par_begin,
+                 ParamIter      par_end )
+ {
+@@ -140,7 +140,7 @@
+ inline ut_detail::param_test_case_generator<
+     BOOST_DEDUCED_TYPENAME remove_const<BOOST_DEDUCED_TYPENAME remove_reference<ParamType>::type>::type,ParamIter>
+ make_test_case( void (*test_func)( ParamType ),
+-                const_string  tc_name, 
++                const_string  tc_name,
+                 ParamIter     par_begin,
+                 ParamIter     par_end )
+ {
+@@ -160,8 +160,8 @@
+                 ParamIter                              par_end )
+ {
+     typedef BOOST_DEDUCED_TYPENAME remove_const<BOOST_DEDUCED_TYPENAME remove_reference<ParamType>::type>::type param_value_type;
+-    return ut_detail::param_test_case_generator<param_value_type,ParamIter>( 
+-               ut_detail::user_param_tc_method_invoker<UserTestCase,ParamType>( user_test_case, test_method ), 
++    return ut_detail::param_test_case_generator<param_value_type,ParamIter>(
++               ut_detail::user_param_tc_method_invoker<UserTestCase,ParamType>( user_test_case, test_method ),
+                tc_name,
+                par_begin,
+                par_end );
+Only in boost_1_38_0_modified/boost/test: parameterized_test.hpp~
+diff -ur boost_1_38_0/boost/test/unit_test_suite_impl.hpp boost_1_38_0_modified/boost/test/unit_test_suite_impl.hpp
+--- boost_1_38_0/boost/test/unit_test_suite_impl.hpp	2008-10-13 01:20:26.000000000 -0700
++++ boost_1_38_0_modified/boost/test/unit_test_suite_impl.hpp	2009-05-30 18:07:30.000000000 -0700
 @@ -72,7 +72,7 @@
      void                                increase_exp_fail( unsigned num );
  
