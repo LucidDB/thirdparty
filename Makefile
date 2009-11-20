@@ -59,12 +59,14 @@ clean_obsolete:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost_1_38_0-slimfast.tar.bz2 Boost-fennel.patch
+boost:  boost_1_38_0-slimfast.tar.bz2 Boost-fennel.patch Boost-task.patch Boost-lockfree.patch
 	-rm -rf boost_1_38_0 $@
 	bzip2 -d -k -c $< | tar -x
 	mv boost_1_38_0 boost
 	touch $@
 	unset P4CONFIG; patch -p 1 -d $@ < Boost-fennel.patch
+	unset P4CONFIG; patch -p 1 -d $@ < Boost-task.patch
+	unset P4CONFIG; patch -p 1 -d $@ < Boost-lockfree.patch
 
 icu:	icu-2.8.patch.tgz
 	-rm -rf $@
