@@ -1,0 +1,136 @@
+Index: STLport/build/lib/configure.bat
+===================================================================
+--- STLport/build/lib/configure.bat	(revision 3503)
++++ STLport/build/lib/configure.bat	(working copy)
+@@ -108,6 +108,7 @@
+ echo    msvc7    Microsoft Visual C++ .NET 2002
+ echo    msvc71   Microsoft Visual C++ .NET 2003
+ echo    msvc8    Microsoft Visual C++ 2005
++echo    msvc9    Microsoft Visual C++ 2008
+ echo    icl      Intel C++ Compiler
+ echo    evc3     Microsoft eMbedded Visual C++ 3 (*)
+ echo    evc4     Microsoft eMbedded Visual C++ .NET (*)
+@@ -187,6 +188,7 @@
+ if "%2" == "msvc71" goto oc_msv71
+ if "%2" == "msvc7" goto oc_msvc7
+ if "%2" == "msvc8" goto oc_msvc8
++if "%2" == "msvc9" goto oc_msvc9
+ if "%2" == "icl"   goto oc_icl
+ 
+ if "%2" == "evc3" goto oc_evc3
+@@ -223,6 +225,12 @@
+ set SELECTED_COMPILER_VERSION=80
+ goto oc_msvc
+ 
++:oc_msvc9
++echo Setting compiler: Microsoft Visual C++ 2008
++echo COMPILER_NAME=vc9 >> ..\Makefiles\nmake\config.mak
++set SELECTED_COMPILER_VERSION=90
++goto oc_msvc
++
+ :oc_msvc
+ echo TARGET_OS=x86 >> ..\Makefiles\nmake\config.mak
+ set STLPORT_COMPILE_COMMAND=nmake /fmsvc.mak
+Index: STLport/build/lib/msvc.mak
+===================================================================
+--- STLport/build/lib/msvc.mak	(revision 3503)
++++ STLport/build/lib/msvc.mak	(working copy)
+@@ -12,6 +12,7 @@
+      ("$(COMPILER_NAME)" != "vc70") && \
+      ("$(COMPILER_NAME)" != "vc71") && \
+      ("$(COMPILER_NAME)" != "vc8") && \
++     ("$(COMPILER_NAME)" != "vc9") && \
+      ("$(COMPILER_NAME)" != "icl"))
+ !error '$(COMPILER_NAME)' not supported by this make file, please rerun 'configure' script and follow instructions.
+ !endif
+Index: STLport/build/Makefiles/nmake/app/vc9.mak
+===================================================================
+--- STLport/build/Makefiles/nmake/app/vc9.mak	(revision 0)
++++ STLport/build/Makefiles/nmake/app/vc9.mak	(revision 0)
+@@ -0,0 +1,3 @@
++
++!include vc-common.mak
++
+Index: STLport/build/Makefiles/nmake/lib/vc9.mak
+===================================================================
+--- STLport/build/Makefiles/nmake/lib/vc9.mak	(revision 0)
++++ STLport/build/Makefiles/nmake/lib/vc9.mak	(revision 0)
+@@ -0,0 +1,5 @@
++# -*- makefile -*- Time-stamp: <03/10/17 14:09:57 ptr>
++# $Id: vc8.mak 2403 2006-06-02 20:20:44Z dums $
++
++!include vc-common.mak
++
+Index: STLport/build/Makefiles/nmake/targets.mak
+===================================================================
+--- STLport/build/Makefiles/nmake/targets.mak	(revision 3503)
++++ STLport/build/Makefiles/nmake/targets.mak	(working copy)
+@@ -177,6 +177,10 @@
+ OBJ_MARKED=$(OBJ_MARKED:@=obj\vc8\@)
+ RES_MARKED=$(RES_MARKED:@=obj\vc8\@)
+ 
++!elseif "$(COMPILER_NAME)" == "vc9"
++OBJ_MARKED=$(OBJ_MARKED:@=obj\vc9\@)
++RES_MARKED=$(RES_MARKED:@=obj\vc9\@)
++
+ !elseif "$(COMPILER_NAME)" == "icl"
+ OBJ_MARKED=$(OBJ_MARKED:@=obj\icl\@)
+ RES_MARKED=$(RES_MARKED:@=obj\icl\@)
+Index: STLport/build/Makefiles/nmake/vc-common.mak
+===================================================================
+--- STLport/build/Makefiles/nmake/vc-common.mak	(revision 3503)
++++ STLport/build/Makefiles/nmake/vc-common.mak	(working copy)
+@@ -23,8 +23,10 @@
+ MSVC_VERSION=1300
+ !else if "$(COMPILER_NAME)" == "vc71"
+ MSVC_VERSION=1310
++!else if "$(COMPILER_NAME)" == "vc80"
++MSVC_VERSION=1400
+ !else
+-MSVC_VERSION=1400
++MSVC_VERSION=1500
+ !endif
+ 
+ !ifdef WITH_STATIC_RTL
+Index: STLport/build/Makefiles/nmake/vc9.mak
+===================================================================
+--- STLport/build/Makefiles/nmake/vc9.mak	(revision 0)
++++ STLport/build/Makefiles/nmake/vc9.mak	(revision 0)
+@@ -0,0 +1,13 @@
++
++CFLAGS_COMMON = /nologo /W4 /GR /EHsc
++CXXFLAGS_COMMON = /nologo /W4 /GR /EHsc
++
++DEFS_STLDBG = /GS
++DEFS_STATIC_STLDBG = /GS
++
++OPT_REL = $(OPT_REL) /GL
++LDFLAGS_REL = $(LDFLAGS_REL) /LTCG
++
++
++!include vc-common.mak
++
+Index: STLport/build/test/eh/msvc.mak
+===================================================================
+--- STLport/build/test/eh/msvc.mak	(revision 3503)
++++ STLport/build/test/eh/msvc.mak	(working copy)
+@@ -12,6 +12,7 @@
+      ("$(COMPILER_NAME)" != "vc70") && \
+      ("$(COMPILER_NAME)" != "vc71") && \
+      ("$(COMPILER_NAME)" != "vc8") && \
++     ("$(COMPILER_NAME)" != "vc9") && \
+      ("$(COMPILER_NAME)" != "icl"))
+ !error '$(COMPILER_NAME)' not supported by this make file, please rerun 'configure' script and follow instructions.
+ !endif
+Index: STLport/build/test/unit/msvc.mak
+===================================================================
+--- STLport/build/test/unit/msvc.mak	(revision 3503)
++++ STLport/build/test/unit/msvc.mak	(working copy)
+@@ -11,6 +11,7 @@
+      ("$(COMPILER_NAME)" != "vc70") && \
+      ("$(COMPILER_NAME)" != "vc71") && \
+      ("$(COMPILER_NAME)" != "vc8") && \
++     ("$(COMPILER_NAME)" != "vc9") && \
+      ("$(COMPILER_NAME)" != "icl"))
+ !error '$(COMPILER_NAME)' not supported by this make file, please rerun 'configure' script and follow instructions.
+ !endif

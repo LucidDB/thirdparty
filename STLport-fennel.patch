@@ -1,0 +1,44 @@
+diff -urN ../stlport/stlport/stl/debug/_string.h stlport/stlport/stl/debug/_string.h
+--- ../stlport/stlport/stl/debug/_string.h	2008-10-06 23:44:37.000000000 -0700
++++ stlport/stlport/stl/debug/_string.h	2009-06-01 19:19:00.000000000 -0700
+@@ -347,7 +347,6 @@
+   _Self& assign(const _CharT* __s, size_type __n) {
+     _STLP_FIX_LITERAL_BUG(__s)
+     _STLP_VERBOSE_ASSERT((__s != 0), _StlMsg_INVALID_ARGUMENT)
+-    _M_check_assign((min) (_Traits::length(__s), __n));
+     _M_non_dbg_impl.assign(__s, __s + __n);
+     return *this;
+   }
+diff -urN ../stlport/stlport/stl/_threads.h stlport/stlport/stl/_threads.h
+--- ../stlport/stlport/stl/_threads.h	2008-10-06 23:44:37.000000000 -0700
++++ stlport/stlport/stl/_threads.h	2009-06-01 19:19:00.000000000 -0700
+@@ -57,7 +57,7 @@
+  * does *__target = *__target + __val and returns the old *__target value
+  */
+ 
+-#if defined (_STLP_WIN32) || defined (__sgi) || defined (_STLP_SPARC_SOLARIS_THREADS)
++#if defined (_STLP_WIN32) || defined (__sgi) || defined (_STLP_SPARC_SOLARIS_THREADS) || defined(__GNUC__)
+ typedef long __stl_atomic_t;
+ #else
+ /* Don't import whole namespace!!!! - ptr */
+@@ -458,6 +458,8 @@
+   // The data member _M_ref_count
+ #if defined (__DMC__)
+ public:
++#else
++protected:
+ #endif
+   _STLP_VOLATILE __stl_atomic_t _M_ref_count;
+ 
+diff -urN ../stlport/stlport/stl/_vector.h stlport/stlport/stl/_vector.h
+--- ../stlport/stlport/stl/_vector.h	2008-10-06 23:44:37.000000000 -0700
++++ stlport/stlport/stl/_vector.h	2009-06-01 19:19:17.000000000 -0700
+@@ -244,7 +244,7 @@
+   template <class _Integer>
+   void _M_initialize_aux(_Integer __n, _Integer __val,
+                          const __true_type& /*_IsIntegral*/) {
+-    size_type __real_n;
++    size_type __real_n = __n;
+     this->_M_start = this->_M_end_of_storage.allocate(__n, __real_n);
+     this->_M_end_of_storage._M_data = this->_M_start + __real_n;
+     this->_M_finish = _STLP_PRIV __uninitialized_fill_n(this->_M_start, __n, __val);
