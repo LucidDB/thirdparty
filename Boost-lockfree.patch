@@ -1,7 +1,7 @@
-diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_int.hpp
+diff -Naur boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_int.hpp
 --- boost-old/boost/lockfree/atomic_int.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/atomic_int.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,231 @@
++++ boost/boost/lockfree/atomic_int.hpp	2009-12-04 21:22:29.000000000 -0800
+@@ -0,0 +1,233 @@
 +//  Copyright (C) 2007, 2008 Tim Blechmann & Thomas Grill
 +//
 +//  Distributed under the Boost Software License, Version 1.0. (See
@@ -15,6 +15,7 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +
 +#include <boost/lockfree/detail/prefix.hpp>
 +#include <boost/lockfree/detail/cas.hpp>
++#include <boost/lockfree/detail/branch_hints.hpp>
 +#include <boost/noncopyable.hpp>
 +
 +namespace boost
@@ -101,6 +102,7 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +    void operator =(T v)
 +    {
 +        value = v;
++        memory_barrier();
 +    }
 +
 +    T operator +=(T v)
@@ -183,7 +185,7 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +        {
 +            T oldv = value;
 +            T newv = oldv + v;
-+            if(likely(atomic_cas(&value, oldv, newv)))
++            if(likely(cas(&value, oldv, newv)))
 +                return newv;
 +        }
 +    }
@@ -195,7 +197,7 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +            T oldv = value;
 +            T newv = oldv - v;
 +
-+            if(likely(atomic_cas(&value, oldv, newv)))
++            if(likely(cas(&value, oldv, newv)))
 +                return newv;
 +        }
 +    }
@@ -206,7 +208,7 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +        for(;;)
 +        {
 +            T oldv = value;
-+            if(likely(atomic_cas(&value, oldv, oldv+1)))
++            if(likely(cas(&value, oldv, oldv+1)))
 +                return oldv;
 +        }
 +    }
@@ -217,7 +219,7 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +        for(;;)
 +        {
 +            T oldv = value;
-+            if(likely(atomic_cas(&value, oldv, oldv-1)))
++            if(likely(cas(&value, oldv, oldv-1)))
 +                return oldv;
 +        }
 +    }
@@ -233,9 +235,9 @@ diff -urN boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_in
 +} /* namespace boost */
 +
 +#endif /* BOOST_LOCKFREE_ATOMIC_INT_HPP */
-diff -urN boost-old/boost/lockfree/detail/branch_hints.hpp boost/boost/lockfree/detail/branch_hints.hpp
+diff -Naur boost-old/boost/lockfree/detail/branch_hints.hpp boost/boost/lockfree/detail/branch_hints.hpp
 --- boost-old/boost/lockfree/detail/branch_hints.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/branch_hints.hpp	2009-06-30 16:00:02.000000000 -0700
++++ boost/boost/lockfree/detail/branch_hints.hpp	2009-12-04 21:21:51.000000000 -0800
 @@ -0,0 +1,40 @@
 +//  branch hints
 +//  Copyright (C) 2007, 2008 Tim Blechmann
@@ -277,10 +279,10 @@ diff -urN boost-old/boost/lockfree/detail/branch_hints.hpp boost/boost/lockfree/
 +} /* namespace boost */
 +
 +#endif /* BOOST_LOCKFREE_BRANCH_HINTS_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/detail/cas.hpp boost/boost/lockfree/detail/cas.hpp
+diff -Naur boost-old/boost/lockfree/detail/cas.hpp boost/boost/lockfree/detail/cas.hpp
 --- boost-old/boost/lockfree/detail/cas.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/cas.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,239 @@
++++ boost/boost/lockfree/detail/cas.hpp	2009-12-04 21:21:52.000000000 -0800
+@@ -0,0 +1,231 @@
 +//  Copyright (C) 2007, 2008, 2009 Tim Blechmann & Thomas Grill
 +//
 +//  Distributed under the Boost Software License, Version 1.0. (See
@@ -293,24 +295,40 @@ diff -urN boost-old/boost/lockfree/detail/cas.hpp boost/boost/lockfree/detail/ca
 +#define BOOST_LOCKFREE_CAS_HPP_INCLUDED
 +
 +#include <boost/lockfree/detail/prefix.hpp>
++#include <boost/interprocess/detail/atomic.hpp>
 +#include <boost/detail/lightweight_mutex.hpp>
 +#include <boost/static_assert.hpp>
 +
 +#include <boost/cstdint.hpp>
++
++#include <boost/mpl/map.hpp>
++#include <boost/mpl/at.hpp>
++#include <boost/mpl/if.hpp>
++#include <boost/mpl/long.hpp>
++
++#ifdef __SSE2__
++#include "emmintrin.h"
++#endif
 +
 +namespace boost
 +{
 +namespace lockfree
 +{
 +
-+inline void memory_barrier()
++inline void memory_barrier(void)
 +{
-+#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || defined(__INTEL_COMPILER)
++#if defined(__SSE2__)
++    _mm_mfence();
++#elif defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) &&      \
++                                                (__GNUC_MINOR__ >= 1))) \
++    || defined(__INTEL_COMPILER)
 +    __sync_synchronize();
 +#elif defined(_MSC_VER) && (_MSC_VER >= 1300)
 +    _ReadWriteBarrier();
 +#elif defined(__APPLE__)
 +    OSMemoryBarrier();
++#elif defined(__GNUC__) && defined (__i386__)
++    asm volatile("lock; addl $0,0(%%esp)":::"memory");
 +#elif defined(AO_HAVE_nop_full)
 +    AO_nop_full();
 +#else
@@ -318,212 +336,188 @@ diff -urN boost-old/boost/lockfree/detail/cas.hpp boost/boost/lockfree/detail/ca
 +#endif
 +}
 +
++inline void read_memory_barrier(void)
++{
++#if defined(__SSE2__)
++    _mm_lfence();
++#else
++    memory_barrier();
++#endif
++}
++
++template <typename C>
++struct atomic_cas_emulator
++{
++    static inline bool cas(volatile C * addr, C old, C nw)
++    {
++        static boost::detail::lightweight_mutex guard;
++        boost::detail::lightweight_mutex::scoped_lock lock(guard);
++
++        C * address = (C*) addr;
++
++        if (*address == old)
++        {
++            *address = nw;
++            return true;
++        }
++        else
++            return false;
++    }
++
++    typedef C cas_type;
++};
++
++
 +template <typename C>
 +inline bool atomic_cas_emulation(volatile C * addr, C old, C nw)
 +{
-+    static boost::detail::lightweight_mutex guard;
-+    boost::detail::lightweight_mutex::scoped_lock lock(guard);
-+
-+    if (*addr == old)
-+    {
-+        *addr = nw;
-+        return true;
-+    }
-+    else
-+        return false;
++    return atomic_cas_emulator<C>::cas(addr, old, nw);
 +}
 +
 +using boost::uint32_t;
 +using boost::uint64_t;
 +
-+inline bool atomic_cas32(volatile uint32_t *  addr, uint32_t old, uint32_t nw)
++struct atomic_cas32
 +{
-+#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || defined(__INTEL_COMPILER)
-+    return __sync_bool_compare_and_swap(addr, old, nw);
++    static inline bool cas(volatile uint32_t * addr,
++                           uint32_t const & old,
++                           uint32_t const & nw)
++    {
++#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_4) || defined(__INTEL_COMPILER)
++        return __sync_bool_compare_and_swap(addr, old, nw);
++#elif defined(__APPLE__)
++        return OSAtomicCompareAndSwap32Barrier(old, nw, addr);
 +#else
-+    return boost::interprocess::detail::atomic_cas32(addr, old, nw) == old;
++        return boost::interprocess::detail::atomic_cas32(addr, nw, old) == old;
 +#endif
-+}
++    }
++    typedef uint32_t cas_type;
 +
-+inline bool atomic_cas64(volatile uint64_t * addr, uint64_t old, uint64_t nw)
++    static const bool is_lockfree = true;
++};
++
++struct atomic_cas64
 +{
-+#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || defined(__INTEL_COMPILER)
-+    return __sync_bool_compare_and_swap(addr, old, nw);
++    typedef uint64_t cas_type;
++
++    static inline bool cas(volatile uint64_t * addr,
++                           uint64_t const & old,
++                           uint64_t const & nw)
++    {
++#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8) ||                    \
++    (defined(__GNUC__) && ((__GNUC__ >  4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ > 1)          \
++                       || ((__GNUC__ == 4) && (__GNUC_MINOR__ == 1)))) && defined(__x86_64__))  \
++    || defined(__INTEL_COMPILER)
++        return __sync_bool_compare_and_swap(addr, old, nw);
 +#elif defined(_M_IX86)
-+    return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(addr),
-+                                      reinterpret_cast<LONG>(nw),
-+                                      reinterpret_cast<LONG>(old)) == old;
++        return InterlockedCompareExchange64(reinterpret_cast<volatile LONGLONG*>(addr),
++                                            reinterpret_cast<LONGLONG>(nw),
++                                            reinterpret_cast<LONGLONG>(old)) == old;
 +#elif defined(_M_X64)
-+    return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(addr),
-+                                      reinterpret_cast<LONG>(nw),
-+                                      reinterpret_cast<LONG>(old)) == old;
++        return InterlockedCompareExchange64(reinterpret_cast<volatile LONGLONG*>(addr),
++                                            reinterpret_cast<LONGLONG>(nw),
++                                            reinterpret_cast<LONGLONG>(old)) == old;
++#elif defined(__APPLE__)
++        return OSAtomicCompareAndSwap64Barrier(old, nw, addr);
 +#else
-+#warning ("blocking CAS emulation")
-+    return atomic_cas_emulation(addr, old, nw);
++#define CAS_BLOCKING
++        return atomic_cas_emulation((uint64_t *)addr, old, nw);
 +#endif
-+}
-+
-+template <class C>
-+inline bool atomic_cas(volatile C * addr, C old, C nw)
-+{
-+    if (sizeof(C) == 4)
-+        return atomic_cas32((volatile uint32_t *)addr, (uint32_t)old, (uint32_t)nw);
-+    else if (sizeof(C) == 8)
-+        return atomic_cas64((volatile uint64_t *)addr, (uint64_t)old, (uint64_t)nw);
-+    else
-+        return atomic_cas_emulation(addr, old, nw);
-+}
-+
-+
-+template <class C, class D, class E>
-+inline bool atomic_cas2(volatile C * addr, D old1, E old2, D new1, E new2)
-+{
-+#if defined(__GNUC__) && ((__GNUC__ >  4) || ( (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 2) ) ) && defined(__i386__) && \
-+    (defined(__i686__) || defined(__pentiumpro__) || defined(__nocona__ ) || \
-+     defined (__GCC_HAVE_SYNC_COMPARE_AND_SWAP_8))
-+
-+    struct packed_c
-+    {
-+        D d;
-+        E e;
-+    };
-+
-+    union cu
-+    {
-+        packed_c c;
-+        long long l;
-+    };
-+
-+    cu old;
-+    old.c.d = old1;
-+    old.c.e = old2;
-+
-+    cu nw;
-+    nw.c.d = new1;
-+    nw.c.e = new2;
-+
-+    return __sync_bool_compare_and_swap_8(reinterpret_cast<volatile long long*>(addr),
-+                                          old.l,
-+                                          nw.l);
-+#elif defined(_M_IX86)
-+    bool ok;
-+    __asm {
-+        mov eax,[old1]
-+            mov edx,[old2]
-+            mov ebx,[new1]
-+            mov ecx,[new2]
-+            mov edi,[addr]
-+            lock cmpxchg8b [edi]
-+            setz [ok]
-+            }
-+    return ok;
-+#elif defined(__GNUC__) && (defined(__i686__) || defined(__pentiumpro__) || defined(__nocona__ ))
-+    char result;
-+#ifndef __PIC__
-+    __asm__ __volatile__("lock; cmpxchg8b %0; setz %1"
-+                         : "=m"(*addr), "=q"(result)
-+                         : "m"(*addr), "d" (old1), "a" (old2),
-+                           "c" (new1), "b" (new2) : "memory");
-+#else
-+    __asm__ __volatile__("push %%ebx; movl %6,%%ebx; lock; cmpxchg8b %0; setz %1; pop %%ebx"
-+                         : "=m"(*addr), "=q"(result)
-+                         : "m"(*addr), "d" (old1), "a" (old2),
-+                           "c" (new1), "m" (new2) : "memory");
-+#endif
-+    return result != 0;
-+#elif defined(AO_HAVE_double_compare_and_swap_full)
-+    if (sizeof(D) != sizeof(AO_t) || sizeof(E) != sizeof(AO_t)) {
-+        assert(false);
-+        return false;
 +    }
 +
-+    return AO_compare_double_and_swap_double_full(
-+        reinterpret_cast<volatile AO_double_t*>(addr),
-+        static_cast<AO_t>(old2),
-+        reinterpret_cast<AO_t>(old1),
-+        static_cast<AO_t>(new2),
-+        reinterpret_cast<AO_t>(new1)
-+        );
-+
-+#elif defined(__GNUC__) && defined(__x86_64__) &&                       \
-+    ( __GCC_HAVE_SYNC_COMPARE_AND_SWAP_16 ) ||                          \
-+    ( (__GNUC__ >  4) || ( (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 2) ) && defined(__nocona__ ))
-+
-+    struct packed_c
-+    {
-+        long d;
-+        long e;
-+    };
-+
-+    typedef int TItype __attribute__ ((mode (TI)));
-+
-+    BOOST_STATIC_ASSERT(sizeof(packed_c) == sizeof(TItype));
-+
-+    union cu
-+    {
-+        packed_c c;
-+        TItype l;
-+    };
-+
-+    cu old;
-+    old.c.d = (long)old1;
-+    old.c.e = (long)old2;
-+
-+    cu nw;
-+    nw.c.d = (long)new1;
-+    nw.c.e = (long)new2;
-+
-+    return __sync_bool_compare_and_swap_16(reinterpret_cast<volatile TItype*>(addr),
-+                                           old.l,
-+                                           nw.l);
-+
-+#elif defined(__GNUC__) && defined(__x86_64__)
-+    /* handcoded asm, will crash on early amd processors */
-+    char result;
-+    __asm__ __volatile__("lock; cmpxchg16b %0; setz %1"
-+                         : "=m"(*addr), "=q"(result)
-+                         : "m"(*addr), "d" (old2), "a" (old1),
-+                           "c" (new2), "b" (new1) : "memory");
-+    return result != 0;
++#ifdef CAS_BLOCKING
++#undef CAS_BLOCKING
++    static const bool is_lockfree = false;
 +#else
++    static const bool is_lockfree = true;
++#endif
++};
 +
-+#ifdef _MSC_VER
-+#pragma message ("blocking CAS2 emulation")
++struct atomic_cas128
++{
++#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
++    typedef int cas_type __attribute__ ((mode (TI)));
 +#else
-+#warning ("blocking CAS2 emulation")
++    struct cas_type
++    {
++        bool operator==(cas_type const & rhs)
++        {
++            return (data[0] == rhs.data[0]) &&
++                (data[1] == rhs.data[1]);
++        }
++
++        uint64_t data[2];
++    };
 +#endif
 +
-+    struct packed_c
++    static inline bool cas(volatile cas_type * addr, cas_type const & old, cas_type const & nw)
 +    {
-+        D d;
-+        E e;
-+    };
-+
-+    volatile packed_c * packed_addr = reinterpret_cast<volatile packed_c*>(addr);
-+
-+    static boost::detail::lightweight_mutex guard;
-+    boost::detail::lightweight_mutex::scoped_lock lock(guard);
-+
-+    if (packed_addr->d == old1 &&
-+        packed_addr->e == old2)
-+    {
-+        packed_addr->d = new1;
-+        packed_addr->e = new2;
-+        return true;
++#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16)
++        return __sync_bool_compare_and_swap_16(addr, old, nw);
++#else
++#define CAS_BLOCKING
++        return atomic_cas_emulation((cas_type*)addr, old, nw);
++#endif
 +    }
-+    else
-+        return false;
++
++#ifdef CAS_BLOCKING
++#undef CAS_BLOCKING
++    static const bool is_lockfree = false;
++#else
++    static const bool is_lockfree = true;
 +#endif
++};
++
++namespace detail
++{
++using namespace boost::mpl;
++
++template<typename C>
++struct atomic_cas
++{
++private:
++    typedef map3<pair<long_<4>, atomic_cas32>,
++        pair<long_<8>, atomic_cas64>,
++        pair<long_<16>, atomic_cas128>
++        > cas_map;
++
++    typedef typename at<cas_map, long_<sizeof(C)> >::type atomic_cas_t;
++
++    typedef typename if_<has_key<cas_map, long_<sizeof(C)> >,
++        atomic_cas_t,
++        atomic_cas_emulator<C> >::type cas_t;
++
++    typedef typename cas_t::cas_type cas_value_t;
++
++public:
++    static inline bool cas(volatile C * addr, C const & old, C const & nw)
++    {
++        return cas_t::cas((volatile cas_value_t*)addr,
++                          *(cas_value_t*)&old,
++                          *(cas_value_t*)&nw);
++    }
++
++    static const bool is_lockfree = cas_t::is_lockfree;
++};
++
++} /* namespace detail */
++
++using detail::atomic_cas;
++
++template <typename C>
++inline bool cas(volatile C * addr, C const & old, C const & nw)
++{
++    return atomic_cas<C>::cas(addr, old, nw);
 +}
 +
 +} /* namespace lockfree */
 +} /* namespace boost */
 +
 +#endif /* BOOST_LOCKFREE_CAS_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/detail/freelist.hpp
+diff -Naur boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/detail/freelist.hpp
 --- boost-old/boost/lockfree/detail/freelist.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/freelist.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,320 @@
++++ boost/boost/lockfree/detail/freelist.hpp	2009-12-04 21:21:54.000000000 -0800
+@@ -0,0 +1,328 @@
 +//  lock-free freelist
 +//
 +//  Copyright (C) 2008, 2009 Tim Blechmann
@@ -708,20 +702,24 @@ diff -urN boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/deta
 +            if (!old_pool)
 +                return detail::dummy_freelist<T, Alloc>::allocate();
 +
++            read_memory_barrier();
 +            freelist_node * new_pool = old_pool->next.get_ptr();
 +
-+            if (pool_.cas(old_pool, new_pool))
-+                return reinterpret_cast<T*>(old_pool.get_ptr());
++            if (pool_.cas(old_pool, new_pool)) {
++                void * ptr = old_pool.get_ptr();
++                return reinterpret_cast<T*>(ptr);
++            }
 +        }
 +    }
 +
 +    void deallocate (T * n)
 +    {
++        void * node = n;
 +        for(;;)
 +        {
 +            tagged_ptr old_pool (pool_);
 +
-+            freelist_node * new_pool = reinterpret_cast<freelist_node*>(n);
++            freelist_node * new_pool = reinterpret_cast<freelist_node*>(node);
 +
 +            new_pool->next.set_ptr(old_pool.get_ptr());
 +
@@ -737,13 +735,13 @@ diff -urN boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/deta
 +
 +        while (current)
 +        {
-+            freelist_node * n = current.get_ptr();
++            void * n = current.get_ptr();
 +            current.set(current->next);
 +            detail::dummy_freelist<T, Alloc>::deallocate(reinterpret_cast<T*>(n));
 +        }
 +    }
 +
-+    tagged_ptr pool_;
++    volatile tagged_ptr pool_;
 +};
 +
 +template <typename T, typename Alloc = std::allocator<T> >
@@ -783,20 +781,24 @@ diff -urN boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/deta
 +            if (!old_pool)
 +                return 0;       /* allocation fails */
 +
++            read_memory_barrier();
 +            freelist_node * new_pool = old_pool->next.get_ptr();
 +
-+            if (pool_.cas(old_pool, new_pool))
-+                return reinterpret_cast<T*>(old_pool.get_ptr());
++            if (pool_.cas(old_pool, new_pool)) {
++                void * ptr = old_pool.get_ptr();
++                return reinterpret_cast<T*>(ptr);
++            }
 +        }
 +    }
 +
 +    void deallocate (T * n)
 +    {
++        void * node = n;
 +        for(;;)
 +        {
 +            tagged_ptr old_pool (pool_);
 +
-+            freelist_node * new_pool = reinterpret_cast<freelist_node*>(n);
++            freelist_node * new_pool = reinterpret_cast<freelist_node*>(node);
 +
 +            new_pool->next.set_ptr(old_pool.get_ptr());
 +
@@ -806,7 +808,7 @@ diff -urN boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/deta
 +    }
 +
 +private:
-+    tagged_ptr pool_;
++    volatile tagged_ptr pool_;
 +
 +    const std::size_t total_nodes;
 +    T* chunks;
@@ -844,10 +846,10 @@ diff -urN boost-old/boost/lockfree/detail/freelist.hpp boost/boost/lockfree/deta
 +} /* namespace boost */
 +
 +#endif /* BOOST_LOCKFREE_FREELIST_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/detail/prefix.hpp boost/boost/lockfree/detail/prefix.hpp
+diff -Naur boost-old/boost/lockfree/detail/prefix.hpp boost/boost/lockfree/detail/prefix.hpp
 --- boost-old/boost/lockfree/detail/prefix.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/prefix.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,75 @@
++++ boost/boost/lockfree/detail/prefix.hpp	2009-12-04 21:21:54.000000000 -0800
+@@ -0,0 +1,80 @@
 +//  Copyright (C) 2007, 2008, 2009 Tim Blechmann & Thomas Grill
 +//
 +//  Distributed under the Boost Software License, Version 1.0. (See
@@ -868,8 +870,6 @@ diff -urN boost-old/boost/lockfree/detail/prefix.hpp boost/boost/lockfree/detail
 +
 +#ifdef __APPLE__
 +    #include <libkern/OSAtomic.h>
-+
-+    #include <bits/atomicity.h>
 +#endif
 +
 +#define BOOST_LOCKFREE_CACHELINE_BYTES 64
@@ -894,8 +894,7 @@ diff -urN boost-old/boost/lockfree/detail/prefix.hpp boost/boost/lockfree/detail
 +
 +#ifdef __GNUC__
 +
-+//#define BOOST_LOCKFREE_CACHELINE_ALIGNMENT __attribute__((aligned(BOOST_LOCKFREE_CACHELINE_ALIGNMENT)))
-+#define BOOST_LOCKFREE_CACHELINE_ALIGNMENT __attribute__((aligned(64)))
++#define BOOST_LOCKFREE_CACHELINE_ALIGNMENT __attribute__((aligned(BOOST_LOCKFREE_CACHELINE_BYTES)))
 +
 +#ifdef __i386__
 +    #define BOOST_LOCKFREE_DCAS_ALIGNMENT
@@ -903,11 +902,19 @@ diff -urN boost-old/boost/lockfree/detail/prefix.hpp boost/boost/lockfree/detail
 +    #define BOOST_LOCKFREE_DCAS_ALIGNMENT
 +#elif defined(__x86_64__)
 +
-+    #if !(defined (__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16) || defined (__nocona__))
++    #if !(defined (__GCC_HAVE_SYNC_COMPARE_AND_SWAP_16))
 +        #define BOOST_LOCKFREE_PTR_COMPRESSION 1
 +    #endif
 +    #define BOOST_LOCKFREE_DCAS_ALIGNMENT __attribute__((aligned(16)))
 +#endif
++
++
++#if (__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 2))
++#include <ext/atomicity.h>
++#else
++#include <bits/atomicity.h>
++#endif
++
 +
 +#endif /* __GNUC__ */
 +
@@ -923,10 +930,10 @@ diff -urN boost-old/boost/lockfree/detail/prefix.hpp boost/boost/lockfree/detail
 +
 +
 +#endif /* BOOST_LOCKFREE_PREFIX_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfree/detail/tagged_ptr_dcas.hpp
+diff -Naur boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfree/detail/tagged_ptr_dcas.hpp
 --- boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/tagged_ptr_dcas.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,168 @@
++++ boost/boost/lockfree/detail/tagged_ptr_dcas.hpp	2009-12-04 21:21:56.000000000 -0800
+@@ -0,0 +1,171 @@
 +//  tagged pointer, for aba prevention
 +//
 +//  Copyright (C) 2008 Tim Blechmann
@@ -956,12 +963,14 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +public:
 +    typedef std::size_t tag_t;
 +
++    static const bool is_lockfree = boost::lockfree::atomic_cas<tagged_ptr>::is_lockfree;
++
 +    /** uninitialized constructor */
 +    tagged_ptr(void)//: ptr(0), tag(0)
 +    {}
 +
 +    /** copy constructor */
-+    tagged_ptr(tagged_ptr const & p)//: ptr(0), tag(0)
++    tagged_ptr(volatile tagged_ptr const & p)//: ptr(0), tag(0)
 +    {
 +        set(p);
 +    }
@@ -974,7 +983,7 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +    /* @{ */
 +    void operator= (tagged_ptr const & p)
 +    {
-+        atomic_set(p);
++        set(p);
 +    }
 +
 +    void atomic_set(tagged_ptr const & p)
@@ -1003,7 +1012,7 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +
 +    /** unsafe set operation */
 +    /* @{ */
-+    void set(tagged_ptr const & p)
++    void set(volatile tagged_ptr const & p)
 +    {
 +        ptr = p.ptr;
 +        tag = p.tag;
@@ -1018,12 +1027,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +
 +    /** comparing semantics */
 +    /* @{ */
-+    bool operator== (tagged_ptr const & p) const
++    bool operator== (volatile tagged_ptr const & p) const
 +    {
 +        return (ptr == p.ptr) && (tag == p.tag);
 +    }
 +
-+    bool operator!= (tagged_ptr const & p) const
++    bool operator!= (volatile tagged_ptr const & p) const
 +    {
 +        return !operator==(p);
 +    }
@@ -1031,12 +1040,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +
 +    /** pointer access */
 +    /* @{ */
-+    T * get_ptr() const
++    T * get_ptr(void) const volatile
 +    {
 +        return ptr;
 +    }
 +
-+    void set_ptr(T * p)
++    void set_ptr(T * p) volatile
 +    {
 +        ptr = p;
 +    }
@@ -1044,12 +1053,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +
 +    /** tag access */
 +    /* @{ */
-+    tag_t get_tag() const
++    tag_t get_tag() const volatile
 +    {
 +        return tag;
 +    }
 +
-+    void set_tag(tag_t t)
++    void set_tag(tag_t t) volatile
 +    {
 +        tag = t;
 +    }
@@ -1057,14 +1066,15 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +
 +    /** compare and swap  */
 +    /* @{ */
-+    bool cas(tagged_ptr const & oldval, T * newptr)
++    bool cas(tagged_ptr const & oldval, T * newptr) volatile
 +    {
-+        return boost::lockfree::atomic_cas2(this, oldval.ptr, oldval.tag, newptr, oldval.tag + 1);
++        return cas(oldval, newptr, oldval.tag + 1);
 +    }
 +
-+    bool cas(tagged_ptr const & oldval, T * newptr, tag_t t)
++    bool cas(tagged_ptr const & oldval, T * newptr, tag_t t) volatile
 +    {
-+        return boost::lockfree::atomic_cas2(this, oldval.ptr, oldval.tag, newptr, t);
++        tagged_ptr newval(newptr, t);
++        return boost::lockfree::atomic_cas<tagged_ptr>::cas(this, oldval, newval);
 +    }
 +    /* @} */
 +
@@ -1095,9 +1105,9 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_dcas.hpp boost/boost/lockfr
 +} /* namespace boost */
 +
 +#endif /* BOOST_LOCKFREE_TAGGED_PTR_DCAS_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/detail/tagged_ptr.hpp boost/boost/lockfree/detail/tagged_ptr.hpp
+diff -Naur boost-old/boost/lockfree/detail/tagged_ptr.hpp boost/boost/lockfree/detail/tagged_ptr.hpp
 --- boost-old/boost/lockfree/detail/tagged_ptr.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/tagged_ptr.hpp	2009-06-30 16:00:02.000000000 -0700
++++ boost/boost/lockfree/detail/tagged_ptr.hpp	2009-12-04 21:21:55.000000000 -0800
 @@ -0,0 +1,22 @@
 +//  tagged pointer, for aba prevention
 +//
@@ -1121,10 +1131,10 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr.hpp boost/boost/lockfree/de
 +#endif
 +
 +#endif /* BOOST_LOCKFREE_TAGGED_PTR_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp
+diff -Naur boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp
 --- boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,201 @@
++++ boost/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp	2009-12-04 21:21:57.000000000 -0800
+@@ -0,0 +1,203 @@
 +//  tagged pointer, for aba prevention
 +//
 +//  Copyright (C) 2008, 2009 Tim Blechmann, based on code by Cory Nelson
@@ -1168,12 +1178,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +    static const int tag_index = 3;
 +    static const compressed_ptr_t ptr_mask = 0xffffffffffff; //(1L<<48L)-1;
 +
-+    static T* extract_ptr(compressed_ptr_t const & i)
++    static T* extract_ptr(volatile compressed_ptr_t const & i)
 +    {
 +        return (T*)(i & ptr_mask);
 +    }
 +
-+    static tag_t extract_tag(compressed_ptr_t const & i)
++    static tag_t extract_tag(volatile compressed_ptr_t const & i)
 +    {
 +        cast_unit cu;
 +        cu.value = i;
@@ -1189,12 +1199,14 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +    }
 +
 +public:
++    static const bool is_lockfree = boost::lockfree::atomic_cas<compressed_ptr_t>::is_lockfree;
++
 +    /** uninitialized constructor */
 +    tagged_ptr(void)//: ptr(0), tag(0)
 +    {}
 +
 +    /** copy constructor */
-+    tagged_ptr(tagged_ptr const & p)//: ptr(0), tag(0)
++    tagged_ptr(volatile tagged_ptr const & p)//: ptr(0), tag(0)
 +    {
 +        set(p);
 +    }
@@ -1223,7 +1235,7 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +
 +    /** unsafe set operation */
 +    /* @{ */
-+    void set(tagged_ptr const & p)
++    void set(volatile tagged_ptr const & p)
 +    {
 +        ptr = p.ptr;
 +    }
@@ -1236,12 +1248,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +
 +    /** comparing semantics */
 +    /* @{ */
-+    bool operator== (tagged_ptr const & p) const
++    bool operator== (volatile tagged_ptr const & p) const
 +    {
 +        return (ptr == p.ptr);
 +    }
 +
-+    bool operator!= (tagged_ptr const & p) const
++    bool operator!= (volatile tagged_ptr const & p) const
 +    {
 +        return !operator==(p);
 +    }
@@ -1249,12 +1261,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +
 +    /** pointer access */
 +    /* @{ */
-+    T * get_ptr() const
++    T * get_ptr() const volatile
 +    {
 +        return extract_ptr(ptr);
 +    }
 +
-+    void set_ptr(T * p)
++    void set_ptr(T * p) volatile
 +    {
 +        tag_t tag = get_tag();
 +        ptr = pack_ptr(p, tag);
@@ -1263,12 +1275,12 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +
 +    /** tag access */
 +    /* @{ */
-+    tag_t get_tag() const
++    tag_t get_tag() const volatile
 +    {
 +        return extract_tag(ptr);
 +    }
 +
-+    void set_tag(tag_t t)
++    void set_tag(tag_t t) volatile
 +    {
 +        T * p = get_ptr();
 +        ptr = pack_ptr(p, t);
@@ -1278,22 +1290,22 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +    /** compare and swap  */
 +    /* @{ */
 +private:
-+    bool cas(compressed_ptr_t const & oldval, compressed_ptr_t const & newval)
++    bool cas(compressed_ptr_t const & oldval, compressed_ptr_t const & newval) volatile
 +    {
-+        return boost::lockfree::atomic_cas(&(this->ptr), oldval, newval);
++        return boost::lockfree::atomic_cas<compressed_ptr_t>::cas(&(this->ptr), oldval, newval);
 +    }
 +
 +public:
-+    bool cas(tagged_ptr const & oldval, T * newptr)
++    bool cas(tagged_ptr const & oldval, T * newptr) volatile
 +    {
 +        compressed_ptr_t new_compressed_ptr = pack_ptr(newptr, extract_tag(oldval.ptr)+1);
 +        return cas(oldval.ptr, new_compressed_ptr);
 +    }
 +
-+    bool cas(tagged_ptr const & oldval, T * newptr, tag_t t)
++    bool cas(tagged_ptr const & oldval, T * newptr, tag_t t) volatile
 +    {
 +        compressed_ptr_t new_compressed_ptr = pack_ptr(newptr, t);
-+        return boost::lockfree::atomic_cas(&(this->ptr), oldval.ptr, new_compressed_ptr);
++        return boost::lockfree::atomic_cas<compressed_ptr_t>::cas(&(this->ptr), oldval.ptr, new_compressed_ptr);
 +    }
 +    /* @} */
 +
@@ -1326,10 +1338,10 @@ diff -urN boost-old/boost/lockfree/detail/tagged_ptr_ptrcompression.hpp boost/bo
 +} /* namespace boost */
 +
 +#endif /* BOOST_LOCKFREE_TAGGED_PTR_PTRCOMPRESSION_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
+diff -Naur boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 --- boost-old/boost/lockfree/fifo.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/fifo.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,273 @@
++++ boost/boost/lockfree/fifo.hpp	2009-12-04 21:22:31.000000000 -0800
+@@ -0,0 +1,288 @@
 +//  lock-free fifo queue from
 +//  Michael, M. M. and Scott, M. L.,
 +//  "simple, fast and practical non-blocking and blocking concurrent queue algorithms"
@@ -1375,6 +1387,8 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +
 +    struct BOOST_LOCKFREE_CACHELINE_ALIGNMENT node
 +    {
++        typedef tagged_ptr<node> tagged_ptr_t;
++
 +        node(T const & v):
 +            data(v)
 +        {
@@ -1385,7 +1399,7 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +            next(NULL)
 +        {}
 +
-+        tagged_ptr<node> next;
++        tagged_ptr_t next;
 +        T data;
 +    };
 +
@@ -1400,6 +1414,8 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +                                     >::type pool_t;
 +
 +public:
++    static const bool is_lockfree = node::tagged_ptr_t::is_lockfree;
++
 +    fifo(void):
 +        pool(128)
 +    {
@@ -1418,7 +1434,15 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +
 +    ~fifo(void)
 +    {
-+        assert(empty());
++        if (!empty())
++        {
++            T dummy;
++            for(;;)
++            {
++                if (!dequeue(&dummy))
++                    break;
++            }
++        }
 +        dealloc_node(head_.get_ptr());
 +    }
 +
@@ -1437,9 +1461,8 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +        for (;;)
 +        {
 +            atomic_node_ptr tail (tail_);
-+            memory_barrier();
++            read_memory_barrier();
 +            atomic_node_ptr next (tail->next);
-+            memory_barrier();
 +
 +            if (likely(tail == tail_))
 +            {
@@ -1462,11 +1485,11 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +        for (;;)
 +        {
 +            atomic_node_ptr head (head_);
-+            memory_barrier();
++            read_memory_barrier();
 +
 +            atomic_node_ptr tail(tail_);
 +            node * next = head->next.get_ptr();
-+            memory_barrier();
++            read_memory_barrier();
 +
 +            if (likely(head == head_))
 +            {
@@ -1512,8 +1535,12 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +        pool.deallocate(n);
 +    }
 +
-+    atomic_node_ptr head_;
-+    atomic_node_ptr BOOST_LOCKFREE_CACHELINE_ALIGNMENT tail_; /* force head_ and tail_ to different cache lines! */
++    volatile atomic_node_ptr head_;
++    static const int padding_size = 64 - sizeof(atomic_node_ptr); /* cache lines on current cpus seem to
++                                                                   * be 64 byte */
++    char padding1[padding_size];
++    volatile atomic_node_ptr tail_;
++    char padding2[padding_size];
 +
 +    pool_t pool;
 +};
@@ -1589,7 +1616,7 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +    bool dequeue (boost::scoped_ptr<T> & ret)
 +    {
 +        BOOST_STATIC_ASSERT(sizeof(boost::scoped_ptr<T>) == sizeof(T*));
-+        return dequeue(reinterpret_cast<T**>(&ret));
++        return dequeue(reinterpret_cast<T**>((void*)&ret));
 +    }
 +
 +    bool dequeue (boost::shared_ptr<T> & ret)
@@ -1603,10 +1630,10 @@ diff -urN boost-old/boost/lockfree/fifo.hpp boost/boost/lockfree/fifo.hpp
 +
 +
 +#endif /* BOOST_LOCKFREE_FIFO_HPP_INCLUDED */
-diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
+diff -Naur boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 --- boost-old/boost/lockfree/stack.hpp	1969-12-31 16:00:00.000000000 -0800
-+++ boost/boost/lockfree/stack.hpp	2009-06-30 16:00:02.000000000 -0700
-@@ -0,0 +1,128 @@
++++ boost/boost/lockfree/stack.hpp	2009-12-04 21:22:34.000000000 -0800
+@@ -0,0 +1,150 @@
 +//  Copyright (C) 2008 Tim Blechmann
 +//
 +//  Distributed under the Boost Software License, Version 1.0. (See
@@ -1641,11 +1668,13 @@ diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 +{
 +    struct node
 +    {
++        typedef tagged_ptr<node> tagged_ptr_t;
++
 +        node(T const & v):
 +            v(v)
 +        {}
 +
-+        tagged_ptr<node> next;
++        tagged_ptr_t next;
 +        T v;
 +    };
 +
@@ -1660,6 +1689,8 @@ diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 +                                     >::type pool_t;
 +
 +public:
++    static const bool is_lockfree = node::tagged_ptr_t::is_lockfree;
++
 +    stack(void):
 +        tos(NULL), pool(128)
 +    {}
@@ -1667,6 +1698,19 @@ diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 +    explicit stack(std::size_t n):
 +        tos(NULL), pool(n)
 +    {}
++
++    ~stack(void)
++    {
++        if (!empty())
++        {
++            T dummy;
++            for(;;)
++            {
++                if (!pop(&dummy))
++                    break;
++            }
++        }
++    }
 +
 +    bool push(T const & v)
 +    {
@@ -1690,11 +1734,11 @@ diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 +    {
 +        for (;;)
 +        {
-+            ptr_type old_tos;
-+            old_tos.set(tos);
++            ptr_type old_tos(tos);
 +
 +            if (!old_tos)
 +                return false;
++            read_memory_barrier();
 +
 +            node * new_tos = old_tos->next.get_ptr();
 +
@@ -1709,7 +1753,7 @@ diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 +
 +    bool empty(void) const
 +    {
-+        return tos == NULL;
++        return tos.get_ptr() == NULL;
 +    }
 +
 +private:
@@ -1726,7 +1770,12 @@ diff -urN boost-old/boost/lockfree/stack.hpp boost/boost/lockfree/stack.hpp
 +        pool.deallocate(n);
 +    }
 +
-+    ptr_type tos;
++    volatile ptr_type tos;
++
++    static const int padding_size = 64 - sizeof(ptr_type); /* cache lines on current cpus seem to
++                                                            * be 64 byte */
++    char padding[padding_size];
++
 +    pool_t pool;
 +};
 +
