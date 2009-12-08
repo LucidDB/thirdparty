@@ -23,7 +23,7 @@ diff -Naur boost-old/boost/lockfree/atomic_int.hpp boost/boost/lockfree/atomic_i
 +namespace lockfree
 +{
 +
-+#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 1)) ) || __INTEL_COMPILER
++#if defined(__GNUC__) && ( (__GNUC__ > 4) || ((__GNUC__ >= 4) && (__GNUC_MINOR__ >= 2)) ) || __INTEL_COMPILER
 +
 +template <typename T>
 +class atomic_int:
