@@ -63,10 +63,10 @@ boost:  boost_1_40_0-slimfast.tar.bz2 Boost-fennel.patch boost.lockfree-atomic.t
 	-rm -rf boost_1_40_0 $@
 	bzip2 -d -k -c $< | tar -x
 	mv boost_1_40_0 boost
-	touch $@
 	unset P4CONFIG; patch -p 1 -d $@ < Boost-fennel.patch
 	tar xfz boost.lockfree-atomic.tar.gz
 	unzip boost.task-0.3.1.zip
+	touch $@
 
 icu:	icu-2.8.patch.tgz
 	-rm -rf $@
