@@ -20,7 +20,8 @@ fennel: boost stlport resgen
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs enki \
 	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
-	jgrapht jgraphaddons resgen vjdbc diffj findbugs mysql-connector
+	jgrapht jgraphaddons resgen vjdbc diffj findbugs mysql-connector \
+	jetty
 
 ant_ext: ant ant/lib/junit.jar ant/lib/jakarta-oro-2.0.7.jar ant/lib/ant-contrib.jar ant/lib/jsch-0.1.24.jar ant/lib/findbugs-ant.jar
 
@@ -42,7 +43,7 @@ clean_farrago:
 	-rm -rf ant javacc junit/junit.jar mdrlibs RmiJdbc csvjdbc janino \
 	OpenJava enki \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
-	log4j jdbcappender jtds vjdbc findbugs
+	log4j jdbcappender jtds vjdbc findbugs jetty
 
 clean_optional: clean_obsolete clean_autotools
 	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch ssb
@@ -310,6 +311,12 @@ mysql-connector: mysql-connector-java-3.1.14.zip
 ssb: ssb.tar.bz2
 	rm -rf $@
 	bzip2 $< -d -k -c | tar -x
+	touch $@
+
+jetty: jetty-distribution-7.0.0.RC6.tar.bz2
+	rm -rf $@
+	tar xfj $<
+	mv jetty-distribution-7.0.0.RC6 jetty
 	touch $@
 
 # End
