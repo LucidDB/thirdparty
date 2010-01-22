@@ -143,3 +143,33 @@ diff -urN ../boost/boost/test/unit_test_suite_impl.hpp boost/boost/test/unit_tes
  
  private:
      // Data members
+diff -urN ../boost/boost/functional/hash/detail/float_functions.hpp boost/boost/functional/hash/detail/float_functions.hpp
+--- ../boost/boost/functional/hash/detail/float_functions.hpp	2008-11-20 14:53:20.000000000 -0800
++++ boost-patched/boost/functional/hash/detail/float_functions.hpp	2009-12-03 21:39:44.000000000 -0800
+@@ -82,6 +82,12 @@
+ #  define BOOST_HASH_USE_OVERLOAD_FLOAT_FUNCS
+ #endif
+ 
++#ifdef __APPLE__
++# define BOOST_HASH_USE_C99_FLOAT_FUNCS
++# undef BOOST_HASH_USE_OVERLOAD_FLOAT_FUNCS
++#endif
++
++
+ namespace boost
+ {
+     namespace hash_detail
+diff -ur boost/boost/functional/hash/detail/hash_float.hpp boost-patched/boost/functional/hash/detail/hash_float.hpp
+--- boost/boost/functional/hash/detail/hash_float.hpp	2008-11-20 14:53:20.000000000 -0800
++++ boost-patched/boost/functional/hash/detail/hash_float.hpp	2009-12-03 21:38:19.000000000 -0800
+@@ -30,6 +30,10 @@
+ 
+ // Select implementation for the current platform.
+ 
++#ifdef __APPLE__
++# define BOOST_HASH_USE_x86_BINARY_HASH
++#endif
++
+ // Cygwn
+ #if defined(__CYGWIN__)
+ #  if defined(__i386__) || defined(_M_IX86)
