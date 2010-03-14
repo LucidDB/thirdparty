@@ -312,10 +312,10 @@ ssb: ssb.tar.bz2
 	bzip2 $< -d -k -c | tar -x
 	touch $@
 
-jetty: jetty-distribution-7.0.0.RC6.tar.bz2
+jetty: jetty-distribution-7.0.1.v20091125.tar.bz2
 	rm -rf $@
 	tar xfj $<
-	mv jetty-distribution-7.0.0.RC6 jetty
+	mv jetty-distribution-7.0.1.v20091125 jetty
 	touch $@
 
 # End
