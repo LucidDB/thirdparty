@@ -137,7 +137,7 @@ sqlline: sqlline-src-1_0_8-eb.jar
 # Keep version-numbered jline so we know what version it is.  Copy it
 # to jline.jar to keep everyone's build happy. 
 # REVIEW: SWZ: 4/25/06: Consider just using the version-numbered JAR as-is
-jline.jar: jline-0_9_5.jar
+jline.jar: jline-0.9.94.jar
 	-rm -rf $@
 	cp $< $@
 	touch $@
@@ -191,10 +191,10 @@ csvjdbc: csvjdbc-r0-10-schoi.zip
 	mv csvjdbc-r0-10-schoi csvjdbc
 	touch $@
 
-janino: janino-2.5.15.patched.zip
+janino: janino-2.6.0-rc3.zip
 	-rm -rf $@
 	unzip $<
-	mv janino-2.5.15.patched janino
+	mv janino-2.6.0-rc3 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
