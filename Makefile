@@ -128,16 +128,16 @@ jgraphaddons: jgraphaddons-1.0.5-src.zip
 	unzip $< -d $@
 	touch $@
 
-sqlline: sqlline-src-1_0_7-eb.jar
+sqlline: sqlline-src-1_0_8-eb.jar
 	-rm -rf $@
 	jar xf $<
-	mv sqlline-1_0_7-eb sqlline
+	mv sqlline-1_0_8-eb sqlline
 	touch $@
 
 # Keep version-numbered jline so we know what version it is.  Copy it
 # to jline.jar to keep everyone's build happy. 
 # REVIEW: SWZ: 4/25/06: Consider just using the version-numbered JAR as-is
-jline.jar: jline-0_9_5.jar
+jline.jar: jline-0.9.94.jar
 	-rm -rf $@
 	cp $< $@
 	touch $@
@@ -191,10 +191,10 @@ csvjdbc: csvjdbc-r0-10-schoi.zip
 	mv csvjdbc-r0-10-schoi csvjdbc
 	touch $@
 
-janino: janino-2.5.15.patched.zip
+janino: janino-2.6.0-rc3.zip
 	-rm -rf $@
 	unzip $<
-	mv janino-2.5.15.patched janino
+	mv janino-2.6.0-rc3 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
@@ -312,10 +312,10 @@ ssb: ssb.tar.bz2
 	bzip2 $< -d -k -c | tar -x
 	touch $@
 
-jetty: jetty-distribution-7.0.0.RC6.tar.bz2
+jetty: jetty-distribution-7.0.1.v20091125.tar.bz2
 	rm -rf $@
 	tar xfj $<
-	mv jetty-distribution-7.0.0.RC6 jetty
+	mv jetty-distribution-7.0.1.v20091125 jetty
 	touch $@
 
 axis: axis-bin-1_4_netsuite.tar.gz
