@@ -318,4 +318,21 @@ jetty: jetty-distribution-7.0.0.RC6.tar.bz2
 	mv jetty-distribution-7.0.0.RC6 jetty
 	touch $@
 
+axis: axis-bin-1_4_netsuite.tar.gz
+	-rm -rf $@
+	tar xfz $<
+	touch $@
+
+commons-codec: commons-codec-1.3.zip
+	-rm -rf $@ commons-codec-1.3
+	unzip $< 
+	mv commons-codec-1.3 $@
+	touch $@
+
+commons-httpclient: commons-httpclient-3.0.zip
+	-rm -rf $@ commons-httpclient-3.0
+	unzip $< 
+	mv commons-httpclient-3.0 $@
+	touch $@
+
 # End
