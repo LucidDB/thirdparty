@@ -137,7 +137,7 @@ sqlline: sqlline-src-1_0_8-eb.jar
 # Keep version-numbered jline so we know what version it is.  Copy it
 # to jline.jar to keep everyone's build happy. 
 # REVIEW: SWZ: 4/25/06: Consider just using the version-numbered JAR as-is
-jline.jar: jline-0_9_5.jar
+jline.jar: jline-0.9.94.jar
 	-rm -rf $@
 	cp $< $@
 	touch $@
@@ -312,10 +312,10 @@ ssb: ssb.tar.bz2
 	bzip2 $< -d -k -c | tar -x
 	touch $@
 
-jetty: jetty-distribution-7.0.0.RC6.tar.bz2
+jetty: jetty-distribution-7.0.1.v20091125.tar.bz2
 	rm -rf $@
 	tar xfj $<
-	mv jetty-distribution-7.0.0.RC6 jetty
+	mv jetty-distribution-7.0.1.v20091125 jetty
 	touch $@
 
 # End
