@@ -46,7 +46,7 @@ clean_farrago:
 	log4j jdbcappender jtds vjdbc findbugs jetty
 
 clean_optional: clean_obsolete clean_autotools
-	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch ssb
+	-rm -rf jalopy jswat emma xmlbeans blackhawk tpch ssb axis
 
 clean_autotools:
 	-rm -rf autoconf automake libtool
@@ -318,9 +318,10 @@ jetty: jetty-distribution-7.0.1.v20091125.tar.bz2
 	mv jetty-distribution-7.0.1.v20091125 jetty
 	touch $@
 
-axis: axis-bin-1_4_netsuite.tar.gz
+axis: axis-bin-1_4.tar.bz2
 	-rm -rf $@
-	tar xfz $<
+	tar xfj $<
+	mv axis-1_4 axis
 	touch $@
 
 # End
