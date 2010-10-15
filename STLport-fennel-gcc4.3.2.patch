@@ -6,7 +6,7 @@ diff -Naur STLport-5.1.5-orig/build/Makefiles/gmake/gcc.mak STLport-5.1.5/build/
  
  ifeq ($(CXX_VERSION),)
 +# Current g++-4.3
-+CXX_VERSION := $(shell ${CXX} --version | grep '^g++' | awk '{ print $$4; }')
++CXX_VERSION := $(shell ${CXX} --version | egrep '^g++|gcc' | awk '{ print $$4; }')
 +endif
 +
 +ifeq ($(CXX_VERSION),)
