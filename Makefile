@@ -73,15 +73,12 @@ icu:	icu-2.8.patch.tgz
 	tar xfz $<
 	touch $@
 
-stlport: STLport-5.1.6.tar.bz2 STLport-fennel.patch stlport-msvc9-r3503.patch \
-STLport-fennel-gcc4.3.2.patch
-	-rm -rf STLport-5.1.6 $@
+stlport: STLport-5.2.1.tar.bz2 STLport-fennel.patch
+	-rm -rf STLport-5.2.1 $@
 	tar xjf $<
-	mv STLport-5.1.6 $@
+	mv STLport-5.2.1 $@
 	touch $@
 	unset P4CONFIG; patch -p 1 -d $@ < STLport-fennel.patch
-	unset P4CONFIG; patch -p 1 -d $@ < STLport-fennel-gcc4.3.2.patch
-	unset P4CONFIG; patch -p 1 -d $@ < stlport-msvc9-r3503.patch
 
 ant: apache-ant-1.7.0-bin.tar.bz2
 	-rm -rf apache-ant-1.7.0 $@

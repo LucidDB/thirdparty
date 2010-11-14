@@ -1,27 +1,7 @@
-diff -urN ../stlport/stlport/stl/debug/_string.h stlport/stlport/stl/debug/_string.h
---- ../stlport/stlport/stl/debug/_string.h	2008-10-06 23:44:37.000000000 -0700
-+++ stlport/stlport/stl/debug/_string.h	2009-06-01 19:19:00.000000000 -0700
-@@ -347,7 +347,6 @@
-   _Self& assign(const _CharT* __s, size_type __n) {
-     _STLP_FIX_LITERAL_BUG(__s)
-     _STLP_VERBOSE_ASSERT((__s != 0), _StlMsg_INVALID_ARGUMENT)
--    _M_check_assign((min) (_Traits::length(__s), __n));
-     _M_non_dbg_impl.assign(__s, __s + __n);
-     return *this;
-   }
 diff -urN ../stlport/stlport/stl/_threads.h stlport/stlport/stl/_threads.h
 --- ../stlport/stlport/stl/_threads.h	2008-10-06 23:44:37.000000000 -0700
 +++ stlport/stlport/stl/_threads.h	2009-06-01 19:19:00.000000000 -0700
-@@ -57,7 +57,7 @@
-  * does *__target = *__target + __val and returns the old *__target value
-  */
- 
--#if defined (_STLP_WIN32) || defined (__sgi) || defined (_STLP_SPARC_SOLARIS_THREADS)
-+#if defined (_STLP_WIN32) || defined (__sgi) || defined (_STLP_SPARC_SOLARIS_THREADS) || defined(__GNUC__)
- typedef long __stl_atomic_t;
- #else
- /* Don't import whole namespace!!!! - ptr */
-@@ -458,6 +458,8 @@
+@@ -458,5 +458,7 @@
    // The data member _M_ref_count
  #if defined (__DMC__)
  public:
@@ -29,30 +9,143 @@ diff -urN ../stlport/stlport/stl/_threads.h stlport/stlport/stl/_threads.h
 +protected:
  #endif
    _STLP_VOLATILE __stl_atomic_t _M_ref_count;
+diff -urN ../stlport/stlport/stl/_hashtable.c stlport/stlport/stl/_hashtable.c
+--- ../stlport/stlport/stl/_hashtable.c
++++ stlport/stlport/stl/_hashtable.c
+@@ -249,9 +249,8 @@ hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
  
-diff -urN ../stlport/stlport/stl/_vector.h stlport/stlport/stl/_vector.h
---- ../stlport/stlport/stl/_vector.h	2008-10-06 23:44:37.000000000 -0700
-+++ stlport/stlport/stl/_vector.h	2009-06-01 19:19:17.000000000 -0700
-@@ -244,7 +244,7 @@
-   template <class _Integer>
-   void _M_initialize_aux(_Integer __n, _Integer __val,
-                          const __true_type& /*_IsIntegral*/) {
--    size_type __real_n;
-+    size_type __real_n = __n;
-     this->_M_start = this->_M_end_of_storage.allocate(__n, __real_n);
-     this->_M_end_of_storage._M_data = this->_M_start + __real_n;
-     this->_M_finish = _STLP_PRIV __uninitialized_fill_n(this->_M_start, __n, __val);
-diff -urN ../stlport/stlport/stl/_fstream.c stlport/stlport/stl/_fstream.c 
---- ../stlport/stlport/stl/_fstream.c	2008-10-06 23:44:37.000000000 -0700
-+++ stlport/stlport/stl/_fstream.c	2009-12-21 01:26:57.000000000 -0800
-@@ -499,6 +499,10 @@
-   // to make progress.
-   for (;;) {
-     ptrdiff_t __n = _M_base._M_read(_M_ext_buf_end, _M_ext_buf_EOS - _M_ext_buf_end);
-+    if (__n < 0) {
-+        this->setg(0, 0, 0);
-+        return traits_type::eof();
-+    }
-     _M_ext_buf_end += __n;
+ template <class _Val, class _Key, class _HF,
+           class _Traits, class _ExK, class _EqK, class _All>
+-__reference__
+-hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+-  ::_M_insert(const value_type& __obj) {
++__reference__ hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>::_M_insert(const value_type& __obj)
++{
+   _M_enlarge(_M_num_elements + 1);
+   return *insert_unique_noresize(__obj).first;
+ }
+@@ -293,7 +292,7 @@ hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+   }
  
-     // If external buffer is empty there is nothing to do. 
+   _M_num_elements -= __erased;
+-  _M_reduce();
++
+   return __erased;
+ }
+ 
+@@ -325,7 +324,6 @@ void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+   }
+ 
+   _M_num_elements -= __erased;
+-  _M_reduce();
+ }
+ 
+ template <class _Val, class _Key, class _HF,
+@@ -356,35 +354,29 @@ void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+   }
+   fill(_M_buckets.begin() + __f_bucket, _M_buckets.begin() + __l_bucket + 1, __cur._M_node);
+   _M_num_elements -= __erased;
+-  _M_reduce();
+ }
+ 
+ template <class _Val, class _Key, class _HF,
+           class _Traits, class _ExK, class _EqK, class _All>
+-void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+-  ::rehash(size_type __num_buckets_hint) {
+-  if (bucket_count() >= __num_buckets_hint) {
+-    // We are trying to reduce number of buckets, we have to validate it:
+-    size_type __limit_num_buckets = (size_type)((float)size() / max_load_factor());
+-    if (__num_buckets_hint < __limit_num_buckets) {
+-      // Targetted number of buckets __num_buckets_hint would break
+-      // load_factor() <= max_load_factor() rule.
+-      return;
+-    }
++void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>::rehash(size_type __num_buckets_hint)
++{
++  if ( bucket_count() <  __num_buckets_hint ) {
++    _M_rehash(__num_buckets_hint);
++  } else {
++    _M_reduce();
+   }
+-
+-  _M_rehash(__num_buckets_hint);
+ }
+ 
+ template <class _Val, class _Key, class _HF,
+           class _Traits, class _ExK, class _EqK, class _All>
+-void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+-  ::_M_enlarge(size_type __to_size) {
++void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>::_M_enlarge( size_type __to_size )
++{
+   size_type __num_buckets = bucket_count();
+   size_type __num_buckets_hint = (size_type)((float)__to_size / max_load_factor());
+-  if (__num_buckets_hint <= __num_buckets) {
++  if ( __num_buckets_hint <= __num_buckets ) {
+     return;
+   }
++
+   __num_buckets = _STLP_PRIV _Stl_prime_type::_S_next_size(__num_buckets_hint);
+ 
+   _M_rehash(__num_buckets);
+@@ -437,20 +429,6 @@ void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+ template <class _Val, class _Key, class _HF,
+           class _Traits, class _ExK, class _EqK, class _All>
+ void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+-  ::_M_resize() {
+-  if (load_factor() > max_load_factor()) {
+-    // We have to enlarge
+-    _M_enlarge(size());
+-  }
+-  else {
+-    // We can try to reduce size:
+-    _M_reduce();
+-  }
+-}
+-
+-template <class _Val, class _Key, class _HF,
+-          class _Traits, class _ExK, class _EqK, class _All>
+-void hashtable<_Val,_Key,_HF,_Traits,_ExK,_EqK,_All>
+   ::_M_rehash(size_type __num_buckets) {
+ #if defined (_STLP_DEBUG)
+   _M_check();
+diff -urN ../stlport/stlport/stl/_hashtable.h stlport/stlport/stl/_hashtable.h
+--- ../stlport/stlport/stl/_hashtable.h
++++ stlport/stlport/stl/_hashtable.h
+@@ -421,10 +421,15 @@ public:
+   // hash policy
+   float load_factor() const { return (float)size() / (float)bucket_count(); }
+   float max_load_factor() const { return _M_max_load_factor; }
+-  void max_load_factor(float __z) {
+-    _M_max_load_factor = __z;
+-    _M_resize();
+-  }
++  void max_load_factor(float __z)
++      {
++        _STLP_STD::swap( _M_max_load_factor, __z );
++        if ( __z > _M_max_load_factor ) { // max load was decreased
++          _M_enlarge(size()); // ... have to enlarge
++        } else { // We can try to reduce size
++          _M_reduce();
++        }
++      }
+ 
+   pair<iterator, bool> insert_unique(const value_type& __obj) {
+     _M_enlarge(_M_num_elements + 1);
+@@ -558,12 +563,12 @@ public:
+   void erase(const_iterator __first, const_iterator __last);
+ 
+ private:
+-  void _M_enlarge(size_type __n);
+-  void _M_reduce();
+-  void _M_resize();
+-  void _M_rehash(size_type __num_buckets);
++    void _M_enlarge( size_type );
++    void _M_reduce();
++    void _M_resize();
++    void _M_rehash(size_type __num_buckets);
+ #if defined (_STLP_DEBUG)
+-  void _M_check() const;
++    void _M_check() const;
+ #endif
+ 
+ public:
