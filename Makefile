@@ -80,10 +80,10 @@ stlport: STLport-5.2.1.tar.bz2 STLport-fennel.patch
 	touch $@
 	unset P4CONFIG; patch -p 1 -d $@ < STLport-fennel.patch
 
-ant: apache-ant-1.7.0-bin.tar.bz2
-	-rm -rf apache-ant-1.7.0 $@
+ant: apache-ant-1.8.2-bin.tar.bz2
+	-rm -rf apache-ant-1.8.2 $@
 	bzip2 -d -k -c $< | tar -x
-	mv apache-ant-1.7.0 ant
+	mv apache-ant-1.8.2 ant
 	touch $@
 
 javacc: javacc-4.0.tar.gz
