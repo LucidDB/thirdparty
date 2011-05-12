@@ -15,7 +15,8 @@ all:
 	make fennel farrago optional
 
 # Unpack only third-party components needed to build Fennel
-fennel: boost stlport resgen
+fennel: stlport resgen
+# fennel: boost stlport resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs enki \
@@ -36,7 +37,8 @@ clean:  clean_fennel clean_farrago clean_optional clean_autotools
 
 # Remove only third-party components needed by Fennel
 clean_fennel:
-	-rm -rf boost stlport stlport4 stlport5
+	-rm -rf stlport stlport4 stlport5
+#	-rm -rf boost stlport stlport4 stlport5
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
