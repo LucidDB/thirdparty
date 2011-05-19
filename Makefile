@@ -176,10 +176,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-vjdbc: vjdbc_1_6_5-jvs.zip
-	-rm -rf $@ vjdbc_1_6_5-jvs
+vjdbc: vjdbc_1_7_0.zip
+	-rm -rf $@ vjdbc_1_7_0
 	unzip $<
-	mv vjdbc_1_6_5-jvs vjdbc
+	mv vjdbc_1_7_0 vjdbc
 	touch $@
 
 csvjdbc: csvjdbc-r0-10-schoi.zip
@@ -188,10 +188,10 @@ csvjdbc: csvjdbc-r0-10-schoi.zip
 	mv csvjdbc-r0-10-schoi csvjdbc
 	touch $@
 
-janino: janino-2.6.0-rc3.zip
+janino: janino-2.6.2.r538.zip
 	-rm -rf $@
 	unzip $<
-	mv janino-2.6.0-rc3 janino
+	mv janino-2.6.2.r538 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
