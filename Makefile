@@ -60,12 +60,11 @@ clean_obsolete:
 # of unpacking, we hide the version, so other parts of the build can
 # remain version-independent.
 
-boost:  boost_1_40_0-slimfast.tar.bz2 Boost-fennel.patch boost.lockfree-atomic.tar.gz
-	-rm -rf boost_1_40_0 $@
+boost:  boost_1_43_0-slimfast.tar.bz2 Boost-fennel.patch
+	-rm -rf boost_1_43_0 $@
 	bzip2 -d -k -c $< | tar -x
-	mv boost_1_40_0 boost
+	mv boost_1_43_0 boost
 	unset P4CONFIG; patch -p 1 -d $@ < Boost-fennel.patch
-	tar xfz boost.lockfree-atomic.tar.gz
 	touch $@
 
 icu:	icu-2.8.patch.tgz
@@ -139,10 +138,10 @@ jline.jar: jline-0.9.94.jar
 	cp $< $@
 	touch $@
 
-jswat: jswat-2.29.zip
-	-rm -rf jswat-2.29 $@
+jswat: jswat-cli-4.5.zip
+	-rm -rf jswat-cli-4.5 $@
 	unzip $<
-	mv jswat-2.29 jswat
+	mv jswat-cli-4.5 jswat
 	touch $@
 
 macker: macker-0.4.1.tar.gz
@@ -176,10 +175,10 @@ RmiJdbc: RmiJdbc-3.01jvs.tar.gz
 	tar xfz $<
 	touch $@
 
-vjdbc: vjdbc_1_6_5-jvs.zip
-	-rm -rf $@ vjdbc_1_6_5-jvs
+vjdbc: vjdbc_1_7_0.zip
+	-rm -rf $@ vjdbc_1_7_0
 	unzip $<
-	mv vjdbc_1_6_5-jvs vjdbc
+	mv vjdbc_1_7_0 vjdbc
 	touch $@
 
 csvjdbc: csvjdbc-r0-10-schoi.zip
@@ -188,10 +187,10 @@ csvjdbc: csvjdbc-r0-10-schoi.zip
 	mv csvjdbc-r0-10-schoi csvjdbc
 	touch $@
 
-janino: janino-2.6.0-rc3.zip
+janino: janino-2.6.2.r538.zip
 	-rm -rf $@
 	unzip $<
-	mv janino-2.6.0-rc3 janino
+	mv janino-2.6.2.r538 janino
 	touch $@
 
 autoconf: autoconf-2.59.tar.gz
@@ -252,10 +251,10 @@ jdbcappender: jdbcappender.zip
 	unzip $< -d $@
 	touch $@
 
-diffj: diffj-1.1.1.zip
-	-rm -rf $@ diffj-1.1.1
+diffj: diffj-1.1.4.zip
+	-rm -rf $@ diffj-1.1.4
 	unzip $<
-	mv diffj-1.1.1 $@
+	mv diffj-1.1.4 $@
 	touch $@
 
 log4j: logging-log4j-1.3alpha-8.tar.gz
@@ -281,10 +280,10 @@ blackhawk: blackhawk.tar.bz2
 	mv dist $@
 	touch $@
 
-xmlbeans: xmlbeans-2.1.0.zip
+xmlbeans: xmlbeans-2.5.0.zip
 	-rm -rf xmlbeans $@
 	unzip $<
-	mv xmlbeans-2.1.0 xmlbeans
+	mv xmlbeans-2.5.0 xmlbeans
 	touch $@
 
 tpch: tpch.tar.gz
