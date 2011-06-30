@@ -133,7 +133,7 @@ sqlline: sqlline-src-1_0_8-eb.jar
 # Keep version-numbered jline so we know what version it is.  Copy it
 # to jline.jar to keep everyone's build happy. 
 # REVIEW: SWZ: 4/25/06: Consider just using the version-numbered JAR as-is
-jline.jar: jline-0.9.94.jar
+jline.jar: jline-1.0.jar
 	-rm -rf $@
 	cp $< $@
 	touch $@
