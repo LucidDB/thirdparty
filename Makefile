@@ -19,7 +19,7 @@ fennel: boost stlport resgen
 
 # Unpack only third-party components needed to build Farrago (without Fennel)
 farrago: ant_ext javacc junit/junit.jar ant/lib/junit.jar ant mdrlibs enki \
-	RmiJdbc csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
+	csvjdbc janino OpenJava hsqldb macker sqlline jline.jar \
 	jgrapht jgraphaddons resgen vjdbc diffj findbugs mysql-connector \
 	jetty
 
@@ -40,7 +40,7 @@ clean_fennel:
 
 # Remove only third-party components needed by Farrago
 clean_farrago:
-	-rm -rf ant javacc junit/junit.jar mdrlibs RmiJdbc csvjdbc janino \
+	-rm -rf ant javacc junit/junit.jar mdrlibs csvjdbc janino \
 	OpenJava enki \
 	hsqldb macker sqlline jgrapht jgraphaddons resgen retroweaver \
 	log4j jdbcappender jtds vjdbc findbugs jetty
@@ -168,11 +168,6 @@ enki: eigenbase-enki-0.1.0.tar.gz eigenbase-enki-0.1.0-libs.tar.gz
 	(cd $@ && jar xf eigenbase-enki-0.1.0-doc.jar)
 	mv $@/api $@/javadoc
 	rm -rf $@/META-INF
-	touch $@
-
-RmiJdbc: RmiJdbc-3.01jvs.tar.gz
-	-rm -rf $@
-	tar xfz $<
 	touch $@
 
 vjdbc: vjdbc_1_7_0.zip
