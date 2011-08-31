@@ -284,6 +284,7 @@ xmlbeans: xmlbeans-2.5.0.zip
 tpch: tpch.tar.gz
 	rm -rf $@
 	tar xfz $<
+	cd tpch && make clean all
 	touch $@
 
 findbugs: findbugs-1.3.2.tar.gz
